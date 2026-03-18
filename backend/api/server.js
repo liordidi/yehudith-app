@@ -76,24 +76,8 @@ supabase
     }
   });
 
-// ── Startup: warn if site_settings table is missing ──────────────────────────
-// Gallery display settings are stored there.
-// To create it, run in Supabase SQL editor:
-//   CREATE TABLE IF NOT EXISTS site_settings (
-//     key   TEXT PRIMARY KEY,
-//     value JSONB NOT NULL DEFAULT '{}'::jsonb
-//   );
-supabase
-  .from('site_settings')
-  .select('key')
-  .limit(0)
-  .then(({ error }) => {
-    if (error) {
-      console.warn('\n⚠️  site_settings table missing — gallery display settings will not persist.');
-      console.warn('   Create it in Supabase SQL editor:');
-      console.warn("   CREATE TABLE IF NOT EXISTS site_settings (key TEXT PRIMARY KEY, value JSONB NOT NULL DEFAULT '{}'::jsonb);\n");
-    }
-  });
+// Gallery display settings are stored as gallery-settings.json in the
+// memory-images storage bucket — no extra DB table needed.
 
 // CORS — supports a comma-separated list of allowed origins so both localhost
 // and a LAN IP can be active simultaneously during local dev:
@@ -308,26 +292,38 @@ app.delete('/api/admin/memories/:id', requireAdmin, async (req, res) => {
 });
 
 // ── Public: GET /api/gallery-settings — thumbnail display settings ────────────
+// Reads gallery-settings.json from the memory-images storage bucket.
 app.get('/api/gallery-settings', async (_req, res) => {
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('value')
-    .eq('key', 'gallery_display')
-    .maybeSingle();
+  const { data, error } = await supabase.storage
+    .from('memory-images')
+    .download('gallery-settings.json');
 
-  if (error) return res.json({});         // table missing or other error — return empty
-  res.json(data?.value ?? {});
+  if (error || !data) return res.json({});  // file not created yet — return empty
+
+  try {
+    const text = Buffer.from(await data.arrayBuffer()).toString('utf-8');
+    return res.json(JSON.parse(text));
+  } catch {
+    return res.json({});
+  }
 });
 
 // ── Admin: PUT /api/admin/gallery-settings — save thumbnail display settings ──
+// Writes gallery-settings.json to the memory-images storage bucket.
 app.put('/api/admin/gallery-settings', requireAdmin, async (req, res) => {
-  const { error } = await supabase
-    .from('site_settings')
-    .upsert({ key: 'gallery_display', value: req.body }, { onConflict: 'key' });
+  const json   = JSON.stringify(req.body);
+  const buffer = Buffer.from(json, 'utf-8');
+
+  const { error } = await supabase.storage
+    .from('memory-images')
+    .upload('gallery-settings.json', buffer, {
+      contentType: 'application/json',
+      upsert: true,             // overwrite if already exists
+    });
 
   if (error) {
-    console.error('PUT gallery-settings:', error.message);
-    return res.status(500).json({ error: 'שגיאה בשמירת הגדרות תצוגה' });
+    console.error('PUT gallery-settings storage error:', error.message);
+    return res.status(500).json({ error: 'שגיאה בשמירת הגדרות: ' + error.message });
   }
   res.json({ ok: true });
 });
