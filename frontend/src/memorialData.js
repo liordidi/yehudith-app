@@ -29,8 +29,6 @@ export const memorialData = {
   },
   gallery: {
     title: "גלריה",
-    // Filter labels shown to the user. First entry is always "show all".
-    categories: ["הכל", "משפחה", "רגעים", "ילדות"],
   },
   memories: {
     title: "זיכרונות",

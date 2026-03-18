@@ -470,55 +470,66 @@ body {
 
 /* Gallery Section */
 .gallery-section {
-  padding: 24px 16px;
+  padding: 24px 0 24px 0;
 }
 .gallery-section h2,
 .memories-section h2 {
   text-align: center;
 }
-.gallery-categories {
+
+/* ── Horizontal slider ───────────────────────────────────────────────────── */
+.gallery-slider {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 12px;
+  padding: 0 16px 4px;
 }
-.gallery-categories button {
-  border-radius: 18px;
-  background: #f3ede6;
-  color: #6b6375;
-  border: none;
-  padding: 6px 18px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 4px;
+.gallery-slider::-webkit-scrollbar {
+  display: none;
 }
-.gallery-categories .active {
-  background: #e6e2d8;
-  font-weight: 600;
-}
-.gallery-grid {
-  columns: 2;
-  column-gap: 12px;
-}
-.gallery-card {
-  break-inside: avoid;
-  background: #fffaf6;
+.gallery-slide {
+  flex: 0 0 85%;
+  scroll-snap-align: start;
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(80,80,80,0.08);
   overflow: hidden;
-  margin-bottom: 12px;
   cursor: pointer;
+  background: #fffaf6;
+  box-shadow: 0 1px 4px rgba(80,80,80,0.08);
   transition: box-shadow 0.18s;
 }
-.gallery-card:hover {
+.gallery-slide:hover {
   box-shadow: 0 3px 12px rgba(80,80,80,0.16);
 }
 .gallery-img {
   width: 100%;
-  height: auto;
+  height: 240px;
+  object-fit: cover;
   display: block;
-  border-radius: 16px;
+}
+
+/* ── Navigation dots ─────────────────────────────────────────────────────── */
+.gallery-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 0 16px;
+  flex-wrap: wrap;
+}
+.gallery-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d6cfc6;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.gallery-dot--active {
+  background: #9d8b7a;
+  transform: scale(1.45);
 }
 /* Video thumbnail */
 .gallery-video-wrapper {

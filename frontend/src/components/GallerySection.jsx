@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { galleryItems } from '../galleryAssets';
 import { VideoThumbnail } from './VideoThumbnail';
 import { MediaModal } from './MediaModal';
@@ -18,32 +18,44 @@ function GalleryMedia({ item }) {
 }
 
 export function GallerySection({ gallery }) {
-  const [selected, setSelected]   = useState(gallery.categories[0]);
-  const [activeItem, setActiveItem] = useState(null);
+  const [activeItem,  setActiveItem]  = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const trackRef  = useRef(null);
   const commentsHook = useComments();
 
-  const filtered = selected === gallery.categories[0]
-    ? galleryItems
-    : galleryItems.filter(i => i.category === selected);
+  // Keep activeIndex in sync with whichever slide is most visible
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll('.gallery-slide'));
+    const observers = slides.map((slide, i) => {
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveIndex(i); },
+        { root: track, threshold: 0.5 }
+      );
+      obs.observe(slide);
+      return obs;
+    });
+
+    return () => observers.forEach(obs => obs.disconnect());
+  }, []);
+
+  const scrollToIndex = (i) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const slide = track.querySelectorAll('.gallery-slide')[i];
+    if (slide) slide.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  };
 
   return (
     <section className="gallery-section" dir="rtl">
       <h2>{gallery.title}</h2>
 
-      <div className="gallery-categories">
-        {gallery.categories.map(cat => (
-          <button
-            key={cat}
-            className={selected === cat ? 'active' : ''}
-            onClick={() => setSelected(cat)}
-          >{cat}</button>
-        ))}
-      </div>
-
-      <div className="gallery-grid">
-        {filtered.map(item => (
+      <div className="gallery-slider" ref={trackRef}>
+        {galleryItems.map(item => (
           <div
-            className="gallery-card"
+            className="gallery-slide"
             key={item.id}
             onClick={() => setActiveItem(item)}
             role="button"
@@ -54,6 +66,18 @@ export function GallerySection({ gallery }) {
           </div>
         ))}
       </div>
+
+      {galleryItems.length > 1 && (
+        <div className="gallery-dots" aria-hidden="true">
+          {galleryItems.map((_, i) => (
+            <span
+              key={i}
+              className={`gallery-dot${i === activeIndex ? ' gallery-dot--active' : ''}`}
+              onClick={() => scrollToIndex(i)}
+            />
+          ))}
+        </div>
+      )}
 
       {activeItem && (
         <MediaModal
