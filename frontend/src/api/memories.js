@@ -80,17 +80,29 @@ export async function fetchApprovedMemoriesAdmin(adminKey) {
  * Returns { ok, cropWarning? } — cropWarning means text saved but image_crop column missing.
  */
 export async function updateMemory(id, adminKey, data) {
+  // Always use FormData so the caller can optionally attach a replacement image file.
+  const fd = new FormData();
+  fd.append('name',  data.name  ?? '');
+  fd.append('title', data.title ?? '');
+  fd.append('text',  data.text  ?? '');
+  if (data.image_crop !== null && data.image_crop !== undefined) {
+    fd.append('image_crop',
+      typeof data.image_crop === 'string'
+        ? data.image_crop
+        : JSON.stringify(data.image_crop));
+  }
+  if (data.imageFile)    fd.append('image', data.imageFile);
+  if (data.remove_image) fd.append('remove_image', 'true');
+
   const res = await fetch(`${API}/api/admin/memories/${id}`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Admin-Key': adminKey,
-    },
-    body: JSON.stringify(data),
+    // No Content-Type header — browser sets it with the correct multipart boundary
+    headers: { 'X-Admin-Key': adminKey },
+    body: fd,
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || 'שגיאה בעריכת הזיכרון');
-  return json; // caller checks json.cropWarning if needed
+  return json; // caller checks json.cropWarning and json.image_url if needed
 }
 
 /** Delete an approved memory (admin only). Also removes its storage image server-side. */

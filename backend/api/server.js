@@ -198,9 +198,11 @@ app.get('/api/admin/memories/approved', requireAdmin, async (_req, res) => {
   res.json(data.map(normalizeCrop));
 });
 
-// ── Admin: PATCH /api/admin/memories/:id — edit content + image display ──────
-app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
-  const { name, title, text, image_crop } = req.body;
+// ── Admin: PATCH /api/admin/memories/:id — edit content, image, display ──────
+// Accepts multipart/form-data so the admin can optionally upload a replacement image.
+// Fields: name, title, text, image_crop (JSON string), image (file), remove_image ('true')
+app.patch('/api/admin/memories/:id', requireAdmin, upload.single('image'), async (req, res) => {
+  const { name, title, text, image_crop, remove_image } = req.body;
 
   if (!name?.trim() || !text?.trim()) {
     return res.status(400).json({ error: 'שם וטקסט הם שדות חובה' });
@@ -208,7 +210,8 @@ app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
   if (name.trim().length > 120) {
     return res.status(400).json({ error: 'השם ארוך מדי (מקסימום 120 תווים)' });
   }
-  // Parse and sanitise full image display settings
+
+  // ── Parse and sanitise image display settings ─────────────────────────────
   let cropValue = null;
   if (image_crop !== undefined && image_crop !== null && image_crop !== '') {
     try {
@@ -225,14 +228,60 @@ app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
     }
   }
 
-  // ── Step 1: update text fields (always reliable) ───────────────────────────
+  // ── Handle image replacement / removal ────────────────────────────────────
+  const isReplacing = !!req.file;
+  const isRemoving  = remove_image === 'true';
+  let new_image_url; // undefined = no change; string or null = changed
+
+  if (isReplacing || isRemoving) {
+    // Fetch current image_url so we can delete the old file from storage
+    const { data: current } = await supabase
+      .from('memories')
+      .select('image_url')
+      .eq('id', req.params.id)
+      .single();
+
+    // Delete old file from storage (best-effort; don't fail the request if it errors)
+    if (current?.image_url) {
+      const oldFilename = current.image_url.split('/').pop();
+      await supabase.storage.from('memory-images').remove([oldFilename]);
+    }
+
+    if (isRemoving) {
+      new_image_url = null;
+    } else {
+      // Upload the new file
+      const ext      = req.file.mimetype.split('/')[1].replace('jpeg', 'jpg');
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from('memory-images')
+        .upload(filename, req.file.buffer, { contentType: req.file.mimetype, upsert: false });
+
+      if (uploadErr) {
+        console.error('PATCH image upload:', uploadErr.message);
+        return res.status(500).json({ error: 'שגיאה בהעלאת התמונה החדשה' });
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('memory-images')
+        .getPublicUrl(filename);
+
+      new_image_url = publicUrl;
+    }
+  }
+
+  // ── Step 1: update text (+ image_url if changed) ──────────────────────────
+  const textUpdate = {
+    name:  name.trim(),
+    title: title?.trim() || null,
+    text:  text.trim(),
+    ...(new_image_url !== undefined && { image_url: new_image_url }),
+  };
+
   const { error: textError } = await supabase
     .from('memories')
-    .update({
-      name:  name.trim(),
-      title: title?.trim() || null,
-      text:  text.trim(),
-    })
+    .update(textUpdate)
     .eq('id', req.params.id);
 
   if (textError) {
@@ -240,7 +289,7 @@ app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
     return res.status(500).json({ error: 'שגיאה בשמירת עריכה' });
   }
 
-  // ── Step 2: update image display settings (separate query so text always saves) ──
+  // ── Step 2: update image display settings ────────────────────────────────
   if (cropValue !== null) {
     const { error: cropError } = await supabase
       .from('memories')
@@ -248,13 +297,19 @@ app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
       .eq('id', req.params.id);
 
     if (cropError) {
-      // Text was saved; image settings failed (likely missing column)
       console.error('PATCH memory image_crop:', cropError.message);
-      return res.json({ ok: true, cropWarning: 'הגדרות התמונה לא נשמרו. הוסף עמודת image_crop לטבלה.' });
+      return res.json({
+        ok: true,
+        ...(new_image_url !== undefined && { image_url: new_image_url }),
+        cropWarning: 'הגדרות התמונה לא נשמרו. הוסף עמודת image_crop לטבלה.',
+      });
     }
   }
 
-  res.json({ ok: true });
+  res.json({
+    ok: true,
+    ...(new_image_url !== undefined && { image_url: new_image_url }),
+  });
 });
 
 // ── Admin: PATCH /api/admin/memories/:id/approve ──────────────────────────────

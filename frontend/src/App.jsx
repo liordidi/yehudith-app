@@ -145,14 +145,14 @@ function App() {
     const applyEdit = m =>
       m.id === id
         ? { ...m, name: data.name, title: data.title, text: data.text,
+            // Backend returns image_url only when it changed (replace or remove)
+            ...('image_url' in result ? { image_url: result.image_url } : {}),
             ...(cropStr !== undefined ? { image_crop: cropStr } : {}) }
         : m;
     setPending(prev => prev.map(applyEdit));
     setApprovedAdmin(prev => prev.map(applyEdit));
     setServerMemories(prev => prev.map(applyEdit));
     if (result.cropWarning) {
-      // Throw so EditMemoryModal's catch block shows the warning inside the modal
-      // (modal stays open, user sees the SQL they need to run)
       throw new Error(result.cropWarning);
     }
     setAdminMsg('הזיכרון עודכן ✓');
@@ -435,16 +435,26 @@ function parseDisplaySafe(cropVal) {
   }
 }
 
-// ── Admin: edit memory text + image display settings ─────────────────────────
+// ── Admin: edit memory text + image (replace/remove) + display settings ──────
 function EditMemoryModal({ memory, onSave, onClose }) {
-  const [name,    setName]    = useState(memory?.name  ?? '');
-  const [title,   setTitle]   = useState(memory?.title ?? '');
-  const [text,    setText]    = useState(memory?.text  ?? '');
-  const [display, setDisplay] = useState(() => parseDisplaySafe(memory?.image_crop));
-  const [saving,  setSaving]  = useState(false);
-  const [error,   setError]   = useState('');
+  const [name,           setName]           = useState(memory?.name  ?? '');
+  const [title,          setTitle]          = useState(memory?.title ?? '');
+  const [text,           setText]           = useState(memory?.text  ?? '');
+  const [display,        setDisplay]        = useState(() => parseDisplaySafe(memory?.image_crop));
+  const [imageFile,      setImageFile]      = useState(null);
+  const [imagePreviewUrl,setImagePreviewUrl]= useState(null);
+  const [removeImage,    setRemoveImage]    = useState(false);
+  const [saving,         setSaving]         = useState(false);
+  const [error,          setError]          = useState('');
+
+  // Clean up the object URL when the modal unmounts
+  useEffect(() => () => { if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl); }, [imagePreviewUrl]);
 
   if (!memory) return null;
+
+  // What the focal-point editor and public card preview should show:
+  //   new file selected → blob URL  |  image removed → null  |  unchanged → original URL
+  const previewSrc = imageFile ? imagePreviewUrl : (removeImage ? null : memory.image_url);
 
   const set = (key, val) => setDisplay(prev => ({ ...prev, [key]: val }));
 
@@ -452,6 +462,23 @@ function EditMemoryModal({ memory, onSave, onClose }) {
     const rect = e.currentTarget.getBoundingClientRect();
     set('x', Math.round(((e.clientX - rect.left) / rect.width)  * 100));
     set('y', Math.round(((e.clientY - rect.top)  / rect.height) * 100));
+  };
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    setImageFile(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
+    setRemoveImage(false);
+    setDisplay({ ...DISPLAY_DEFAULTS }); // reset crop for the new image
+  };
+
+  const handleRemoveImage = () => {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    setImageFile(null);
+    setImagePreviewUrl(null);
+    setRemoveImage(true);
   };
 
   const handleSave = async () => {
@@ -463,24 +490,24 @@ function EditMemoryModal({ memory, onSave, onClose }) {
     setError('');
     try {
       await onSave(memory.id, {
-        name:       name.trim(),
-        title:      title.trim() || null,
-        text:       text.trim(),
-        image_crop: memory.image_url ? display : null,
+        name:         name.trim(),
+        title:        title.trim() || null,
+        text:         text.trim(),
+        image_crop:   previewSrc ? display : null,
+        imageFile:    imageFile   || undefined,
+        remove_image: removeImage,
       });
-      // onSave closes the modal via setEditingMemory(null)
     } catch (err) {
       setError(err.message || 'שגיאה בשמירה');
       setSaving(false);
     }
   };
 
-  // Inline style applied to the live preview (and re-used by the public card)
   const imgStyle = {
-    objectFit:      display.fit,
-    objectPosition: `${display.x}% ${display.y}%`,
-    transform:      display.zoom !== 1 ? `scale(${display.zoom})` : undefined,
-    transformOrigin:`${display.x}% ${display.y}%`,
+    objectFit:       display.fit,
+    objectPosition:  `${display.x}% ${display.y}%`,
+    transform:       display.zoom !== 1 ? `scale(${display.zoom})` : undefined,
+    transformOrigin: `${display.x}% ${display.y}%`,
   };
 
   return (
@@ -501,82 +528,90 @@ function EditMemoryModal({ memory, onSave, onClose }) {
           <textarea value={text} onChange={e => setText(e.target.value)} rows={4} />
         </div>
 
-        {/* ── Image display controls (only when image exists) ── */}
-        {memory.image_url && (
-          <div className="img-display-editor">
-            <div className="img-display-section-label">הצגת תמונה בכרטיס</div>
+        {/* ── Image section ── */}
+        <div className="img-display-editor">
+          <div className="img-display-section-label">תמונה</div>
 
-            {/* Live preview — click to set focal point */}
-            <div
-              className="focal-picker-wrap"
-              style={{ height: `${display.height}px` }}
-              onClick={handleImageClick}
-              title="לחץ לבחירת מוקד"
-            >
-              <img
-                src={memory.image_url}
-                alt=""
-                className="focal-picker-img"
-                style={imgStyle}
-                draggable={false}
+          {/* Replace / Remove / Add controls */}
+          <div className="image-replace-row">
+            <label className="memory-file-label">
+              {previewSrc ? 'החלף תמונה' : (memory.image_url && !removeImage) ? 'שחזר תמונה' : 'הוסף תמונה'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleImageFileChange}
               />
+            </label>
+            {previewSrc && (
+              <button
+                type="button"
+                className="memory-approve-btn admin-reject-btn"
+                onClick={handleRemoveImage}
+              >הסר תמונה</button>
+            )}
+            {removeImage && (
+              <span className="img-removed-note">התמונה תוסר בשמירה</span>
+            )}
+          </div>
+
+          {/* Focal-point editor — shown whenever there is a preview image */}
+          {previewSrc && (
+            <>
               <div
-                className="focal-dot"
-                style={{ left: `${display.x}%`, top: `${display.y}%` }}
-              />
-              <div className="focal-click-hint">לחץ לשינוי מוקד</div>
-            </div>
-
-            {/* Controls */}
-            <div className="img-display-controls">
-              {/* Height */}
-              <div className="img-ctrl-row">
-                <span className="img-ctrl-label">גובה תמונה</span>
-                <input
-                  type="range" min="60" max="400" step="10"
-                  value={display.height}
-                  onChange={e => set('height', parseInt(e.target.value))}
-                  className="img-ctrl-slider"
+                className="focal-picker-wrap"
+                style={{ height: `${display.height}px` }}
+                onClick={handleImageClick}
+                title="לחץ לבחירת מוקד"
+              >
+                <img
+                  src={previewSrc}
+                  alt=""
+                  className="focal-picker-img"
+                  style={imgStyle}
+                  draggable={false}
                 />
-                <span className="img-ctrl-val">{display.height}px</span>
+                <div className="focal-dot" style={{ left: `${display.x}%`, top: `${display.y}%` }} />
+                <div className="focal-click-hint">לחץ לשינוי מוקד</div>
               </div>
 
-              {/* Zoom */}
-              <div className="img-ctrl-row">
-                <span className="img-ctrl-label">זום</span>
-                <input
-                  type="range" min="0.5" max="3" step="0.05"
-                  value={display.zoom}
-                  onChange={e => set('zoom', parseFloat(e.target.value))}
-                  className="img-ctrl-slider"
-                />
-                <span className="img-ctrl-val">{display.zoom.toFixed(1)}×</span>
-              </div>
-
-              {/* Fit mode */}
-              <div className="img-ctrl-row">
-                <span className="img-ctrl-label">מצב תצוגה</span>
-                <div className="fit-toggle">
-                  <button
-                    type="button"
-                    className={`fit-btn${display.fit === 'cover'   ? ' fit-btn--active' : ''}`}
-                    onClick={() => set('fit', 'cover')}
-                  >כיסוי</button>
-                  <button
-                    type="button"
-                    className={`fit-btn${display.fit === 'contain' ? ' fit-btn--active' : ''}`}
-                    onClick={() => set('fit', 'contain')}
-                  >התאמה</button>
+              <div className="img-display-controls">
+                <div className="img-ctrl-row">
+                  <span className="img-ctrl-label">גובה תמונה</span>
+                  <input
+                    type="range" min="60" max="400" step="10"
+                    value={display.height}
+                    onChange={e => set('height', parseInt(e.target.value))}
+                    className="img-ctrl-slider"
+                  />
+                  <span className="img-ctrl-val">{display.height}px</span>
+                </div>
+                <div className="img-ctrl-row">
+                  <span className="img-ctrl-label">זום</span>
+                  <input
+                    type="range" min="0.5" max="3" step="0.05"
+                    value={display.zoom}
+                    onChange={e => set('zoom', parseFloat(e.target.value))}
+                    className="img-ctrl-slider"
+                  />
+                  <span className="img-ctrl-val">{display.zoom.toFixed(1)}×</span>
+                </div>
+                <div className="img-ctrl-row">
+                  <span className="img-ctrl-label">מצב תצוגה</span>
+                  <div className="fit-toggle">
+                    <button type="button" className={`fit-btn${display.fit === 'cover'   ? ' fit-btn--active' : ''}`} onClick={() => set('fit', 'cover')}>כיסוי</button>
+                    <button type="button" className={`fit-btn${display.fit === 'contain' ? ' fit-btn--active' : ''}`} onClick={() => set('fit', 'contain')}>התאמה</button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="focal-hint">
-              מוקד: {display.x}%, {display.y}%
-              {display.fit === 'contain' && ' · התאמה מלאה ללא חיתוך'}
-            </div>
-          </div>
-        )}
+              <div className="focal-hint">
+                מוקד: {display.x}%, {display.y}%
+                {display.fit === 'contain' && ' · התאמה מלאה ללא חיתוך'}
+              </div>
+            </>
+          )}
+        </div>
 
         {error && <div className="memory-error" style={{ marginTop: 8 }}>{error}</div>}
 

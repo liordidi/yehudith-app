@@ -183,26 +183,46 @@ function GalleryItemEditor({ item, display: initial, onSave, onClose }) {
 // ── Main gallery section ──────────────────────────────────────────────────────
 
 const ITEMS_PER_PAGE = 4;
+const LS_KEY = 'gallery_display_v1';
+
+function lsLoad() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch { return null; }
+}
+function lsSave(data) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch {}
+}
 
 export function GallerySection({ gallery, showAdmin, adminKey }) {
   const [page,             setPage]            = useState(0);
   const [activeItem,       setActiveItem]      = useState(null);
   const [editingItem,      setEditingItem]      = useState(null);
-  const [displaySettings,  setDisplaySettings] = useState({});
+  const [displaySettings,  setDisplaySettings] = useState(() => lsLoad() || {});
   const commentsHook = useComments();
 
   const totalPages = Math.ceil(galleryItems.length / ITEMS_PER_PAGE);
   const pageItems  = galleryItems.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
 
+  // On mount: prefer backend settings; fall back to localStorage cache
   useEffect(() => {
-    fetchGallerySettings().then(data => setDisplaySettings(data || {}));
+    fetchGallerySettings().then(data => {
+      if (data && Object.keys(data).length > 0) {
+        setDisplaySettings(data);
+        lsSave(data);
+      }
+      // else: keep what was already loaded from localStorage in initial state
+    });
   }, []);
 
   const handleSaveDisplay = async (filename, d) => {
     const next = { ...displaySettings, [filename]: d };
-    await saveGallerySettings(next, adminKey);
+    // Apply immediately so the card reflects the new height without waiting for the network
     setDisplaySettings(next);
+    lsSave(next);
     setEditingItem(null);
+    // Best-effort backend persist (cross-device)
+    saveGallerySettings(next, adminKey).catch(err =>
+      console.warn('[gallery] backend save failed (settings kept locally):', err.message)
+    );
   };
 
   return (

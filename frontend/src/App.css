@@ -231,6 +231,20 @@
   margin-top: 12px;
 }
 
+.image-replace-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.img-removed-note {
+  font-size: 0.82rem;
+  color: #b05070;
+  font-style: italic;
+}
+
 /* ── Image display editor section ────────────────────────────────────────── */
 .img-display-editor {
   margin-top: 14px;
@@ -482,6 +496,7 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
+  align-items: start;
 }
 .gallery-card {
   position: relative;
