@@ -76,16 +76,18 @@ function MemoryCard({ mem, idx }) {
   );
 }
 
-export function MemoriesSection({ memories }) {
+export function MemoriesSection({ memories, fetchError }) {
   const items = memories.items ?? [];
   console.log('[MemoriesSection] rendering', items.length, 'items');
 
   return (
     <section className="memories-section" dir="rtl">
       <h2>{memories.title}</h2>
-      {items.length === 0 && (
+      {fetchError ? (
+        <p className="memories-empty memories-error">{fetchError}</p>
+      ) : items.length === 0 ? (
         <p className="memories-empty">עדיין אין זיכרונות משותפים. היו הראשונים לשתף.</p>
-      )}
+      ) : null}
       <div className="memories-grid">
         {items.map((mem, idx) => (
           <MemoryCard key={mem.id ?? idx} mem={mem} idx={idx} />

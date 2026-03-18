@@ -27,6 +27,7 @@ const SHOW_ADMIN = import.meta.env.DEV ||
 function App() {
   const [modalOpen, setModalOpen]       = useState(false);
   const [serverMemories, setServerMemories] = useState([]);
+  const [memoriesFetchError, setMemoriesFetchError] = useState('');
   const [successMsg, setSuccessMsg]     = useState('');
   const [submitting, setSubmitting]     = useState(false);
   const [submitError, setSubmitError]   = useState('');
@@ -45,7 +46,10 @@ function App() {
       .then(data => {
         setServerMemories(data);
       })
-      .catch(err => console.error('[memories] fetch FAILED:', err.message));
+      .catch(err => {
+        console.error('[memories] fetch FAILED:', err.message);
+        setMemoriesFetchError('לא ניתן לטעון זיכרונות כרגע. אנא נסו שוב מאוחר יותר.');
+      });
   }, []);
 
   // Auto-dismiss success message
@@ -167,7 +171,7 @@ function App() {
       />
       <GallerySection gallery={memorialData.gallery} />
       <div id="memories-section">
-        <MemoriesSection memories={{ title: memorialData.memories.title, items: allMemories }} />
+        <MemoriesSection memories={{ title: memorialData.memories.title, items: allMemories }} fetchError={memoriesFetchError} />
       </div>
       <div id="songs-section">
         <SongsSection songs={memorialData.songs} />

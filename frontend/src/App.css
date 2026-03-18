@@ -923,15 +923,15 @@ body {
   font-size: 1rem;
   padding: 10px 24px;
   border-radius: 24px;
-  background: #f3ede6;
-  color: #6b6375;
+  background: #E8B7C3;
+  color: #5c2d3e;
   border: none;
   box-shadow: 0 1px 4px rgba(80,80,80,0.08);
   cursor: pointer;
   margin-top: 12px;
 }
 .share-memory-btn:hover {
-  background: #e6e2d8;
+  background: #DFA3B2;
 }
 
 .candle-section {
