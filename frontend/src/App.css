@@ -771,13 +771,11 @@ body {
   margin: 8px 0 24px;
 }
 .memories-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  align-items: start;
+  columns: 2;
+  column-gap: 12px;
 }
 @media (max-width: 380px) {
-  .memories-grid { grid-template-columns: 1fr; }
+  .memories-grid { columns: 1; }
 }
 .memory-card {
   background: #f8f6f3;
@@ -786,6 +784,8 @@ body {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  break-inside: avoid;
+  margin-bottom: 12px;
 }
 .memory-content {
   display: flex;
