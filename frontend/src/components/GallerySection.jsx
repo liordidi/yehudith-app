@@ -32,7 +32,7 @@ function GalleryThumb({ item, display }) {
   };
 
   return (
-    <div className="gallery-thumb-wrap" style={{ height: `${d.height}px` }}>
+    <div className="gallery-thumb-wrap" >
       {item.type === 'video' ? (
         <VideoThumbnail
           src={item.src}
