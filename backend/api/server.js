@@ -76,6 +76,25 @@ supabase
     }
   });
 
+// ── Startup: warn if site_settings table is missing ──────────────────────────
+// Gallery display settings are stored there.
+// To create it, run in Supabase SQL editor:
+//   CREATE TABLE IF NOT EXISTS site_settings (
+//     key   TEXT PRIMARY KEY,
+//     value JSONB NOT NULL DEFAULT '{}'::jsonb
+//   );
+supabase
+  .from('site_settings')
+  .select('key')
+  .limit(0)
+  .then(({ error }) => {
+    if (error) {
+      console.warn('\n⚠️  site_settings table missing — gallery display settings will not persist.');
+      console.warn('   Create it in Supabase SQL editor:');
+      console.warn("   CREATE TABLE IF NOT EXISTS site_settings (key TEXT PRIMARY KEY, value JSONB NOT NULL DEFAULT '{}'::jsonb);\n");
+    }
+  });
+
 // CORS — supports a comma-separated list of allowed origins so both localhost
 // and a LAN IP can be active simultaneously during local dev:
 //   FRONTEND_URL=http://localhost:5173,http://192.168.1.83:5173
@@ -285,6 +304,31 @@ app.delete('/api/admin/memories/:id', requireAdmin, async (req, res) => {
     .eq('id', req.params.id);
 
   if (error) return res.status(500).json({ error: 'Failed to delete' });
+  res.json({ ok: true });
+});
+
+// ── Public: GET /api/gallery-settings — thumbnail display settings ────────────
+app.get('/api/gallery-settings', async (_req, res) => {
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'gallery_display')
+    .maybeSingle();
+
+  if (error) return res.json({});         // table missing or other error — return empty
+  res.json(data?.value ?? {});
+});
+
+// ── Admin: PUT /api/admin/gallery-settings — save thumbnail display settings ──
+app.put('/api/admin/gallery-settings', requireAdmin, async (req, res) => {
+  const { error } = await supabase
+    .from('site_settings')
+    .upsert({ key: 'gallery_display', value: req.body }, { onConflict: 'key' });
+
+  if (error) {
+    console.error('PUT gallery-settings:', error.message);
+    return res.status(500).json({ error: 'שגיאה בשמירת הגדרות תצוגה' });
+  }
   res.json({ ok: true });
 });
 

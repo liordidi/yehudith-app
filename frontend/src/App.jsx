@@ -169,7 +169,11 @@ function App() {
         hero={memorialData.hero}
         onShareMemory={handleShareMemory}
       />
-      <GallerySection gallery={memorialData.gallery} />
+      <GallerySection
+        gallery={memorialData.gallery}
+        showAdmin={SHOW_ADMIN}
+        adminKey={adminKey}
+      />
       <div id="memories-section">
         <MemoriesSection memories={{ title: memorialData.memories.title, items: allMemories }} fetchError={memoriesFetchError} />
       </div>

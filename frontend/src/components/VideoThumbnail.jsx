@@ -61,7 +61,7 @@ function extractFrame(src) {
   });
 }
 
-export function VideoThumbnail({ src, className }) {
+export function VideoThumbnail({ src, className, imgStyle }) {
   const [thumbnail, setThumbnail] = useState(null); // null = loading
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export function VideoThumbnail({ src, className }) {
   return (
     <div className="gallery-video-wrapper">
       {thumbnail
-        ? <img src={thumbnail} className={className} alt="תצוגה מקדימה" />
+        ? <img src={thumbnail} className={className} alt="תצוגה מקדימה" style={imgStyle} />
         : <div className={`${className} gallery-video-placeholder`} />
       }
       <span className="gallery-play-icon" aria-hidden="true">▶</span>
