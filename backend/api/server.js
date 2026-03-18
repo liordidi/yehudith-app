@@ -125,10 +125,6 @@ app.post('/api/memories', upload.single('image'), async (req, res) => {
   if (name.trim().length > 120) {
     return res.status(400).json({ error: 'השם ארוך מדי (מקסימום 120 תווים)' });
   }
-  if (text.trim().length > 3000) {
-    return res.status(400).json({ error: 'הטקסט ארוך מדי (מקסימום 3000 תווים)' });
-  }
-
   // Upload image if provided
   let image_url = null;
   if (req.file) {
@@ -209,10 +205,6 @@ app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
   if (name.trim().length > 120) {
     return res.status(400).json({ error: 'השם ארוך מדי (מקסימום 120 תווים)' });
   }
-  if (text.trim().length > 3000) {
-    return res.status(400).json({ error: 'הטקסט ארוך מדי (מקסימום 3000 תווים)' });
-  }
-
   // Parse and sanitise full image display settings
   let cropValue = null;
   if (image_crop !== undefined && image_crop !== null && image_crop !== '') {
