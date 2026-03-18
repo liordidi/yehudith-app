@@ -21,17 +21,12 @@ export const memorialData = {
     subtitle: "לזכרה באהבה",
     description: "אישה של אהבה גדולה, נתינה ענקית, וחיוך תמידי.",
     buttons: [
-      { label: "צפו בזיכרונות",   action: "scrollTo",    scrollTo: "memories-section" },
-      { label: "צפו בשירים שהיא אהבה", action: "scrollTo",    scrollTo: "songs-section" },
-      { label: "צפו בהודעות שלה",      action: "scrollTo",    scrollTo: "messages-section" },
-      { label: "שתפו זיכרון",     action: "shareMemory" },
+      { label: "צפו בשירים שהיא אהבה", action: "scrollTo", scrollTo: "songs-section" },
+      { label: "צפו בהודעות שלה",      action: "scrollTo", scrollTo: "messages-section" },
     ],
   },
   gallery: {
     title: "גלריה",
-  },
-  memories: {
-    title: "זיכרונות",
   },
   songs: {
     title: "שירים שהיא אהבה",
@@ -64,15 +59,6 @@ export const memorialData = {
       { id: 1, text: "זיכרה יהיה לברכה", author: "" },
       { id: 2, text: "אישה של אהבה, נדיבות ואור — לעולם בליבנו", author: "" },
     ],
-  },
-  shareMemory: {
-    title: "שתפו זיכרון",
-    text: "נשמח לשמוע ולשתף זיכרונות אישיים.",
-    buttonLabel: "כתבו זיכרון",
-    modalTitle: "כתבו זיכרון",
-    modalDescription: "טופס שיתוף זיכרון (דמו בלבד)",
-    closeButton: "סגור",
-    // To connect backend, add submission logic here
   },
   candle: {
     buttonLabel: "הדליקו נר לזכרה",

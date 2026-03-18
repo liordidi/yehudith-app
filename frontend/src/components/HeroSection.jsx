@@ -1,11 +1,9 @@
 import React from 'react';
 
-export function HeroSection({ person, hero, onShareMemory }) {
+export function HeroSection({ person, hero }) {
   const handleButton = (btn) => {
     if (btn.action === 'scrollTo') {
       document.getElementById(btn.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
-    } else if (btn.action === 'shareMemory') {
-      onShareMemory();
     }
   };
 
@@ -23,7 +21,7 @@ export function HeroSection({ person, hero, onShareMemory }) {
         {hero.buttons.map((btn, i) => (
           <button
             key={i}
-            className={btn.action === 'shareMemory' ? 'hero-cta-btn hero-cta-share' : 'hero-cta-btn'}
+            className="hero-cta-btn"
             onClick={() => handleButton(btn)}
           >
             {btn.label}
