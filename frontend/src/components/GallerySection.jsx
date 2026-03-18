@@ -7,7 +7,7 @@ import { fetchGallerySettings, saveGallerySettings } from '../api/gallery';
 
 // ── Display settings helpers ──────────────────────────────────────────────────
 
-const DISPLAY_DEFAULTS = { x: 50, y: 50, zoom: 1, fit: 'cover', height: 180 };
+const DISPLAY_DEFAULTS = { x: 50, y: 50, zoom: 1, fit: 'cover', height: 140 };
 
 function parseDisplay(d) {
   if (!d) return { ...DISPLAY_DEFAULTS };
@@ -16,7 +16,7 @@ function parseDisplay(d) {
     y:      typeof d.y      === 'number' ? Math.max(0,   Math.min(100, d.y))      : DISPLAY_DEFAULTS.y,
     zoom:   typeof d.zoom   === 'number' ? Math.max(0.5, Math.min(4,   d.zoom))   : DISPLAY_DEFAULTS.zoom,
     fit:    ['cover', 'contain'].includes(d.fit) ? d.fit                           : DISPLAY_DEFAULTS.fit,
-    height: typeof d.height === 'number' ? Math.max(80,  Math.min(400, d.height)) : DISPLAY_DEFAULTS.height,
+    height: typeof d.height === 'number' ? Math.max(80,  Math.min(300, d.height)) : DISPLAY_DEFAULTS.height,
   };
 }
 
@@ -120,7 +120,7 @@ function GalleryItemEditor({ item, display: initial, onSave, onClose }) {
             <div className="img-ctrl-row">
               <span className="img-ctrl-label">גובה</span>
               <input
-                type="range" min="80" max="400" step="10"
+                type="range" min="80" max="300" step="10"
                 value={d.height}
                 onChange={e => set('height', parseInt(e.target.value))}
                 className="img-ctrl-slider"
@@ -182,7 +182,7 @@ function GalleryItemEditor({ item, display: initial, onSave, onClose }) {
 
 // ── Main gallery section ──────────────────────────────────────────────────────
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 9;
 const LS_KEY = 'gallery_display_v1';
 
 function lsLoad() {

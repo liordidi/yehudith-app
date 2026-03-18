@@ -220,7 +220,7 @@ app.patch('/api/admin/memories/:id', requireAdmin, upload.single('image'), async
         x:      typeof p.x      === 'number' ? Math.max(0,   Math.min(100, p.x))          : 50,
         y:      typeof p.y      === 'number' ? Math.max(0,   Math.min(100, p.y))          : 50,
         zoom:   typeof p.zoom   === 'number' ? Math.max(0.5, Math.min(4,   p.zoom))       : 1,
-        height: typeof p.height === 'number' ? Math.max(60,  Math.min(500, Math.round(p.height))) : 160,
+        height: typeof p.height === 'number' ? Math.max(80,  Math.min(300, Math.round(p.height))) : 140,
         fit:    ['cover', 'contain'].includes(p.fit) ? p.fit : 'cover',
       });
     } catch {
