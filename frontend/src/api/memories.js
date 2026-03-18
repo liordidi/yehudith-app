@@ -2,7 +2,14 @@
 // Thin API client — all requests go through the Express backend,
 // which holds Supabase credentials server-side.
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API = import.meta.env.VITE_API_URL;
+if (!API) {
+  console.error(
+    '[api] VITE_API_URL is not set — all API calls will fail.\n' +
+    '  Dev:  add VITE_API_URL=http://localhost:4000 to frontend/.env.local\n' +
+    '  Prod: set VITE_API_URL in Netlify environment variables.'
+  );
+}
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
@@ -65,6 +72,25 @@ export async function fetchApprovedMemoriesAdmin(adminKey) {
   if (res.status === 401) throw new Error('מפתח ניהול שגוי');
   if (!res.ok) throw new Error('שגיאה בטעינת הזיכרונות המאושרים');
   return res.json();
+}
+
+/**
+ * Edit a memory's text and/or image display settings (admin only).
+ * image_crop shape: { x, y, zoom, height, fit } — all optional, server sanitises.
+ * Returns { ok, cropWarning? } — cropWarning means text saved but image_crop column missing.
+ */
+export async function updateMemory(id, adminKey, data) {
+  const res = await fetch(`${API}/api/admin/memories/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Key': adminKey,
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'שגיאה בעריכת הזיכרון');
+  return json; // caller checks json.cropWarning if needed
 }
 
 /** Delete an approved memory (admin only). Also removes its storage image server-side. */

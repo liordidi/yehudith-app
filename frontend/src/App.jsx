@@ -4,6 +4,8 @@ import { memorialData } from './memorialData';
 import { HeroSection } from './components/HeroSection';
 import { GallerySection } from './components/GallerySection';
 import { MemoriesSection } from './components/MemoriesSection';
+import { SongsSection } from './components/SongsSection';
+import { MessagesSection } from './components/MessagesSection';
 import { CandleSection } from './components/CandleSection';
 import { Footer } from './components/Footer';
 import { Modal } from './components/Modal';
@@ -15,6 +17,7 @@ import {
   rejectMemory,
   fetchApprovedMemoriesAdmin,
   deleteMemory,
+  updateMemory,
 } from './api/memories';
 
 // Admin panel is shown in dev mode OR when ?admin appears in the URL.
@@ -34,24 +37,23 @@ function App() {
   const [pending, setPending]           = useState([]);
   const [approvedAdmin, setApprovedAdmin] = useState([]);
   const [adminMsg, setAdminMsg]         = useState('');
+  const [editingMemory, setEditingMemory] = useState(null);
 
   // Load approved memories from the real backend on mount.
   useEffect(() => {
     fetchApprovedMemories()
-      .then(setServerMemories)
-      .catch(() => {}); // Silent — static seed memories still display
+      .then(data => {
+        setServerMemories(data);
+      })
+      .catch(err => console.error('[memories] fetch FAILED:', err.message));
   }, []);
 
   // Auto-dismiss success message
   useEffect(() => {
     if (!successMsg) return;
-    successTimeout.current = setTimeout(() => setSuccessMsg(''), 3500);
+    successTimeout.current = setTimeout(() => setSuccessMsg(''), 4000);
     return () => clearTimeout(successTimeout.current);
   }, [successMsg]);
-
-  const handleViewMemories = () => {
-    document.getElementById('memories-section')?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const handleShareMemory = () => {
     setSubmitError('');
@@ -70,7 +72,7 @@ function App() {
     try {
       await submitMemory(formData);
       setModalOpen(false);
-      setSuccessMsg('הזיכרון נשלח ויופיע לאחר אישור 💜');
+      setSuccessMsg('תודה על השיתוף! הזיכרון נשלח לאישור ויופיע לאחר בדיקה.');
       resetForm();
     } catch (err) {
       setSubmitError(err.message || 'שגיאה בשליחת הזיכרון');
@@ -103,7 +105,9 @@ function App() {
       setPending(prev => prev.filter(m => m.id !== id));
       if (approved) setApprovedAdmin(prev => [{ ...approved, status: 'approved' }, ...prev]);
       setAdminMsg('הזיכרון אושר ✓');
-      fetchApprovedMemories().then(setServerMemories).catch(() => {});
+      fetchApprovedMemories()
+        .then(setServerMemories)
+        .catch(err => console.error('Refresh after approve failed:', err.message));
     } catch {
       setAdminMsg('שגיאה באישור');
     }
@@ -130,23 +134,46 @@ function App() {
     }
   };
 
-  // Static seed memories always shown; server memories appended below
-  const allMemories = [
-    ...memorialData.memories.items,
-    ...serverMemories,
-  ];
+  const handleSaveEdit = async (id, data) => {
+    const result = await updateMemory(id, adminKey, data);
+    // Normalise image_crop to a JSON string for downstream parsers
+    const cropStr = data.image_crop ? JSON.stringify(data.image_crop) : undefined;
+    const applyEdit = m =>
+      m.id === id
+        ? { ...m, name: data.name, title: data.title, text: data.text,
+            ...(cropStr !== undefined ? { image_crop: cropStr } : {}) }
+        : m;
+    setPending(prev => prev.map(applyEdit));
+    setApprovedAdmin(prev => prev.map(applyEdit));
+    setServerMemories(prev => prev.map(applyEdit));
+    if (result.cropWarning) {
+      // Throw so EditMemoryModal's catch block shows the warning inside the modal
+      // (modal stays open, user sees the SQL they need to run)
+      throw new Error(result.cropWarning);
+    }
+    setAdminMsg('הזיכרון עודכן ✓');
+    setEditingMemory(null);
+  };
+
+  // Only real memories from the backend are shown
+  const allMemories = serverMemories;
 
   return (
     <div className="memorial-page" dir="rtl">
       <HeroSection
         person={memorialData.person}
         hero={memorialData.hero}
-        onViewMemories={handleViewMemories}
         onShareMemory={handleShareMemory}
       />
       <GallerySection gallery={memorialData.gallery} />
       <div id="memories-section">
         <MemoriesSection memories={{ title: memorialData.memories.title, items: allMemories }} />
+      </div>
+      <div id="songs-section">
+        <SongsSection songs={memorialData.songs} />
+      </div>
+      <div id="messages-section">
+        <MessagesSection messages={memorialData.messages} />
       </div>
       <CandleSection candle={memorialData.candle} />
       <Footer footer={memorialData.footer} />
@@ -166,7 +193,22 @@ function App() {
       </Modal>
 
       {successMsg && (
-        <div className="memory-success" dir="rtl">{successMsg}</div>
+        <div
+          className="memory-success-overlay"
+          onClick={() => { clearTimeout(successTimeout.current); setSuccessMsg(''); }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="זיכרון נשלח בהצלחה"
+        >
+          <div className="memory-success-card" dir="rtl" onClick={e => e.stopPropagation()}>
+            <div className="memory-success-heart" aria-hidden="true">❤️</div>
+            <p className="memory-success-text">{successMsg}</p>
+            <button
+              className="memory-success-dismiss"
+              onClick={() => { clearTimeout(successTimeout.current); setSuccessMsg(''); }}
+            >סגור</button>
+          </div>
+        </div>
       )}
 
       {/* Admin moderation panel — dev / ?admin URL only */}
@@ -199,6 +241,7 @@ function App() {
                   )}
                   <div className="admin-pending-actions">
                     <button className="memory-approve-btn" onClick={() => handleApprove(mem.id)}>אשר</button>
+                    <button className="memory-approve-btn" onClick={() => setEditingMemory(mem)}>ערוך</button>
                     <button className="memory-approve-btn admin-reject-btn" onClick={() => handleReject(mem.id)}>דחה</button>
                   </div>
                 </div>
@@ -218,6 +261,7 @@ function App() {
                     <img src={mem.image_url} alt="" className="admin-pending-thumb" />
                   )}
                   <div className="admin-pending-actions">
+                    <button className="memory-approve-btn" onClick={() => setEditingMemory(mem)}>ערוך</button>
                     <button className="memory-approve-btn admin-reject-btn" onClick={() => handleDeleteApproved(mem.id)}>מחק</button>
                   </div>
                 </div>
@@ -225,6 +269,15 @@ function App() {
             </>
           )}
         </div>
+      )}
+
+      {/* Admin edit modal */}
+      {editingMemory && (
+        <EditMemoryModal
+          memory={editingMemory}
+          onSave={handleSaveEdit}
+          onClose={() => setEditingMemory(null)}
+        />
       )}
     </div>
   );
@@ -350,6 +403,187 @@ function MemoryForm({ onSubmit, submitting, submitError }) {
         {submitting ? 'שולח...' : 'שלח זיכרון'}
       </button>
     </form>
+  );
+}
+
+// ── Image display settings helpers ────────────────────────────────────────────
+const DISPLAY_DEFAULTS = { x: 50, y: 50, zoom: 1, height: 160, fit: 'cover' };
+
+function parseDisplaySafe(cropVal) {
+  try {
+    // Accept a JSON string (TEXT column) OR a plain object (JSONB column)
+    const c = typeof cropVal === 'string'
+      ? JSON.parse(cropVal || '{}')
+      : (cropVal && typeof cropVal === 'object' ? cropVal : {});
+    return {
+      x:      typeof c.x      === 'number' ? Math.max(0,   Math.min(100, c.x))      : DISPLAY_DEFAULTS.x,
+      y:      typeof c.y      === 'number' ? Math.max(0,   Math.min(100, c.y))      : DISPLAY_DEFAULTS.y,
+      zoom:   typeof c.zoom   === 'number' ? Math.max(0.5, Math.min(4,   c.zoom))   : DISPLAY_DEFAULTS.zoom,
+      height: typeof c.height === 'number' ? Math.max(60,  Math.min(500, c.height)) : DISPLAY_DEFAULTS.height,
+      fit:    ['cover', 'contain'].includes(c.fit) ? c.fit                           : DISPLAY_DEFAULTS.fit,
+    };
+  } catch {
+    return { ...DISPLAY_DEFAULTS };
+  }
+}
+
+// ── Admin: edit memory text + image display settings ─────────────────────────
+function EditMemoryModal({ memory, onSave, onClose }) {
+  const [name,    setName]    = useState(memory?.name  ?? '');
+  const [title,   setTitle]   = useState(memory?.title ?? '');
+  const [text,    setText]    = useState(memory?.text  ?? '');
+  const [display, setDisplay] = useState(() => parseDisplaySafe(memory?.image_crop));
+  const [saving,  setSaving]  = useState(false);
+  const [error,   setError]   = useState('');
+
+  if (!memory) return null;
+
+  const set = (key, val) => setDisplay(prev => ({ ...prev, [key]: val }));
+
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    set('x', Math.round(((e.clientX - rect.left) / rect.width)  * 100));
+    set('y', Math.round(((e.clientY - rect.top)  / rect.height) * 100));
+  };
+
+  const handleSave = async () => {
+    if (!name.trim() || !text.trim()) {
+      setError('שם וטקסט הם שדות חובה');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      await onSave(memory.id, {
+        name:       name.trim(),
+        title:      title.trim() || null,
+        text:       text.trim(),
+        image_crop: memory.image_url ? display : null,
+      });
+      // onSave closes the modal via setEditingMemory(null)
+    } catch (err) {
+      setError(err.message || 'שגיאה בשמירה');
+      setSaving(false);
+    }
+  };
+
+  // Inline style applied to the live preview (and re-used by the public card)
+  const imgStyle = {
+    objectFit:      display.fit,
+    objectPosition: `${display.x}% ${display.y}%`,
+    transform:      display.zoom !== 1 ? `scale(${display.zoom})` : undefined,
+    transformOrigin:`${display.x}% ${display.y}%`,
+  };
+
+  return (
+    <div className="modal-overlay" dir="rtl" onClick={onClose}>
+      <div className="modal-content edit-memory-modal" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="סגור">✕</button>
+        <h3 className="edit-memory-title">עריכת זיכרון</h3>
+
+        {/* ── Text fields ── */}
+        <div className="memory-form">
+          <label>שם מלא *</label>
+          <input value={name}  onChange={e => setName(e.target.value)} />
+
+          <label>כותרת</label>
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="(ריק = ללא כותרת)" />
+
+          <label>טקסט *</label>
+          <textarea value={text} onChange={e => setText(e.target.value)} rows={4} />
+        </div>
+
+        {/* ── Image display controls (only when image exists) ── */}
+        {memory.image_url && (
+          <div className="img-display-editor">
+            <div className="img-display-section-label">הצגת תמונה בכרטיס</div>
+
+            {/* Live preview — click to set focal point */}
+            <div
+              className="focal-picker-wrap"
+              style={{ height: `${display.height}px` }}
+              onClick={handleImageClick}
+              title="לחץ לבחירת מוקד"
+            >
+              <img
+                src={memory.image_url}
+                alt=""
+                className="focal-picker-img"
+                style={imgStyle}
+                draggable={false}
+              />
+              <div
+                className="focal-dot"
+                style={{ left: `${display.x}%`, top: `${display.y}%` }}
+              />
+              <div className="focal-click-hint">לחץ לשינוי מוקד</div>
+            </div>
+
+            {/* Controls */}
+            <div className="img-display-controls">
+              {/* Height */}
+              <div className="img-ctrl-row">
+                <span className="img-ctrl-label">גובה תמונה</span>
+                <input
+                  type="range" min="60" max="400" step="10"
+                  value={display.height}
+                  onChange={e => set('height', parseInt(e.target.value))}
+                  className="img-ctrl-slider"
+                />
+                <span className="img-ctrl-val">{display.height}px</span>
+              </div>
+
+              {/* Zoom */}
+              <div className="img-ctrl-row">
+                <span className="img-ctrl-label">זום</span>
+                <input
+                  type="range" min="0.5" max="3" step="0.05"
+                  value={display.zoom}
+                  onChange={e => set('zoom', parseFloat(e.target.value))}
+                  className="img-ctrl-slider"
+                />
+                <span className="img-ctrl-val">{display.zoom.toFixed(1)}×</span>
+              </div>
+
+              {/* Fit mode */}
+              <div className="img-ctrl-row">
+                <span className="img-ctrl-label">מצב תצוגה</span>
+                <div className="fit-toggle">
+                  <button
+                    type="button"
+                    className={`fit-btn${display.fit === 'cover'   ? ' fit-btn--active' : ''}`}
+                    onClick={() => set('fit', 'cover')}
+                  >כיסוי</button>
+                  <button
+                    type="button"
+                    className={`fit-btn${display.fit === 'contain' ? ' fit-btn--active' : ''}`}
+                    onClick={() => set('fit', 'contain')}
+                  >התאמה</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="focal-hint">
+              מוקד: {display.x}%, {display.y}%
+              {display.fit === 'contain' && ' · התאמה מלאה ללא חיתוך'}
+            </div>
+          </div>
+        )}
+
+        {error && <div className="memory-error" style={{ marginTop: 8 }}>{error}</div>}
+
+        <div className="edit-memory-actions">
+          <button
+            className="memory-approve-btn"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? 'שומר...' : 'שמור שינויים'}
+          </button>
+          <button className="memory-approve-btn" onClick={onClose}>ביטול</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

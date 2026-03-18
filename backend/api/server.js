@@ -45,10 +45,47 @@ const upload = multer({
   },
 });
 
+// ── Normalise image_crop for API responses ────────────────────────────────────
+// Supabase returns JSONB columns as parsed JS objects, TEXT columns as strings.
+// Either way, the frontend always receives a JSON *string* (or null) so that
+// a single parseDisplaySafe() handles both column types correctly.
+function normalizeCrop(m) {
+  if (!m || m.image_crop == null) return m;
+  return {
+    ...m,
+    image_crop:
+      typeof m.image_crop === 'string'
+        ? m.image_crop
+        : JSON.stringify(m.image_crop),
+  };
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+// ── Startup: warn loudly if image_crop column is missing ─────────────────────
+supabase
+  .from('memories')
+  .select('image_crop')
+  .limit(0)
+  .then(({ error }) => {
+    if (error) {
+      console.warn('\n⚠️  image_crop column missing from memories table.');
+      console.warn('   Image display settings cannot be saved until you run:');
+      console.warn('   ALTER TABLE memories ADD COLUMN IF NOT EXISTS image_crop TEXT;\n');
+    }
+  });
+
+// CORS — supports a comma-separated list of allowed origins so both localhost
+// and a LAN IP can be active simultaneously during local dev:
+//   FRONTEND_URL=http://localhost:5173,http://192.168.1.83:5173
+// Set FRONTEND_URL=* to allow all origins (convenient for local dev).
+const _corsOrigins = (process.env.FRONTEND_URL || '*')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const _corsOrigin = _corsOrigins.length === 1 ? _corsOrigins[0] : _corsOrigins;
+app.use(cors({ origin: _corsOrigin }));
 app.use(express.json());
 
 // ── Admin auth middleware ─────────────────────────────────────────────────────
@@ -61,10 +98,12 @@ function requireAdmin(req, res, next) {
 }
 
 // ── Public: GET /api/memories — approved memories only ───────────────────────
+// Uses select('*') so the query never fails due to optional columns like
+// image_crop not yet existing — PostgreSQL SELECT * only returns existing columns.
 app.get('/api/memories', async (_req, res) => {
   const { data, error } = await supabase
     .from('memories')
-    .select('id, name, title, text, image_url, created_at')
+    .select('*')
     .eq('status', 'approved')
     .order('created_at', { ascending: false });
 
@@ -72,7 +111,7 @@ app.get('/api/memories', async (_req, res) => {
     console.error('GET /api/memories:', error.message);
     return res.status(500).json({ error: 'שגיאה בטעינת הזיכרונות' });
   }
-  res.json(data);
+  res.json(data.map(normalizeCrop));
 });
 
 // ── Public: POST /api/memories — submit a new memory ─────────────────────────
@@ -145,7 +184,7 @@ app.get('/api/admin/memories', requireAdmin, async (_req, res) => {
     .order('created_at', { ascending: true });
 
   if (error) return res.status(500).json({ error: 'Failed to fetch pending' });
-  res.json(data);
+  res.json(data.map(normalizeCrop));
 });
 
 // ── Admin: GET /api/admin/memories/approved — list all approved ───────────────
@@ -157,7 +196,70 @@ app.get('/api/admin/memories/approved', requireAdmin, async (_req, res) => {
     .order('created_at', { ascending: false });
 
   if (error) return res.status(500).json({ error: 'Failed to fetch approved' });
-  res.json(data);
+  res.json(data.map(normalizeCrop));
+});
+
+// ── Admin: PATCH /api/admin/memories/:id — edit content + image display ──────
+app.patch('/api/admin/memories/:id', requireAdmin, async (req, res) => {
+  const { name, title, text, image_crop } = req.body;
+
+  if (!name?.trim() || !text?.trim()) {
+    return res.status(400).json({ error: 'שם וטקסט הם שדות חובה' });
+  }
+  if (name.trim().length > 120) {
+    return res.status(400).json({ error: 'השם ארוך מדי (מקסימום 120 תווים)' });
+  }
+  if (text.trim().length > 3000) {
+    return res.status(400).json({ error: 'הטקסט ארוך מדי (מקסימום 3000 תווים)' });
+  }
+
+  // Parse and sanitise full image display settings
+  let cropValue = null;
+  if (image_crop !== undefined && image_crop !== null && image_crop !== '') {
+    try {
+      const p = typeof image_crop === 'string' ? JSON.parse(image_crop) : image_crop;
+      cropValue = JSON.stringify({
+        x:      typeof p.x      === 'number' ? Math.max(0,   Math.min(100, p.x))          : 50,
+        y:      typeof p.y      === 'number' ? Math.max(0,   Math.min(100, p.y))          : 50,
+        zoom:   typeof p.zoom   === 'number' ? Math.max(0.5, Math.min(4,   p.zoom))       : 1,
+        height: typeof p.height === 'number' ? Math.max(60,  Math.min(500, Math.round(p.height))) : 160,
+        fit:    ['cover', 'contain'].includes(p.fit) ? p.fit : 'cover',
+      });
+    } catch {
+      return res.status(400).json({ error: 'פורמט הגדרות תמונה לא תקין' });
+    }
+  }
+
+  // ── Step 1: update text fields (always reliable) ───────────────────────────
+  const { error: textError } = await supabase
+    .from('memories')
+    .update({
+      name:  name.trim(),
+      title: title?.trim() || null,
+      text:  text.trim(),
+    })
+    .eq('id', req.params.id);
+
+  if (textError) {
+    console.error('PATCH memory text:', textError.message);
+    return res.status(500).json({ error: 'שגיאה בשמירת עריכה' });
+  }
+
+  // ── Step 2: update image display settings (separate query so text always saves) ──
+  if (cropValue !== null) {
+    const { error: cropError } = await supabase
+      .from('memories')
+      .update({ image_crop: cropValue })
+      .eq('id', req.params.id);
+
+    if (cropError) {
+      // Text was saved; image settings failed (likely missing column)
+      console.error('PATCH memory image_crop:', cropError.message);
+      return res.json({ ok: true, cropWarning: 'הגדרות התמונה לא נשמרו. הוסף עמודת image_crop לטבלה.' });
+    }
+  }
+
+  res.json({ ok: true });
 });
 
 // ── Admin: PATCH /api/admin/memories/:id/approve ──────────────────────────────
@@ -205,4 +307,6 @@ app.use((err, _req, res, _next) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Memorial backend running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Memorial backend running on port ${PORT}`);
+});

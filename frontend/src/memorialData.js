@@ -21,8 +21,10 @@ export const memorialData = {
     subtitle: "לזכרה באהבה",
     description: "אישה של אהבה גדולה, נתינה ענקית, וחיוך תמידי.",
     buttons: [
-      { label: "צפו בזיכרונות", action: "viewMemories" },
-      { label: "שתפו זיכרון", action: "shareMemory" },
+      { label: "צפו בזיכרונות",   action: "scrollTo",    scrollTo: "memories-section" },
+      { label: "צפו בשירים שהיא אהבה", action: "scrollTo",    scrollTo: "songs-section" },
+      { label: "צפו בהודעות שלה",      action: "scrollTo",    scrollTo: "messages-section" },
+      { label: "שתפו זיכרון",     action: "shareMemory" },
     ],
   },
   gallery: {
@@ -32,14 +34,37 @@ export const memorialData = {
   },
   memories: {
     title: "זיכרונות",
+  },
+  songs: {
+    title: "שירים שהיא אהבה",
+    // To add a song: copy one of the objects below, give it a unique id, and fill in the fields.
     items: [
       {
-        title: "טיול משפחתי",
-        body: "יהודית תמיד דאגה לכולם, גם בטיולים.",
-        author: "משה כהן",
-        image: null, // Replace with image if needed
+        id: 'song-1',
+        title: 'חופשייה',
+        artist: 'שרית חדד',
+        url: 'https://www.youtube.com/watch?v=SdQFv6zYkDY',
       },
-      // Add more memory cards here
+      {
+        id: 'song-2',
+        title: 'מתגעגעת',
+        artist: 'שיר שהיא כתבה לאיתן אחיה',
+        url: 'https://www.youtube.com/watch?v=fIqWwSzqoFA',
+      },
+      {
+        id: 'song-3',
+        title: 'זכרונות על השולחן',
+        artist: 'רן כרמי',
+        url: 'https://www.youtube.com/watch?v=dVXewqBIf64',
+      },
+    ],
+  },
+  messages: {
+    title: "הודעות שלה",
+    // Add short quotes or dedications here.
+    items: [
+      { id: 1, text: "זיכרה יהיה לברכה", author: "" },
+      { id: 2, text: "אישה של אהבה, נדיבות ואור — לעולם בליבנו", author: "" },
     ],
   },
   shareMemory: {
