@@ -774,6 +774,7 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  align-items: start;
 }
 @media (max-width: 380px) {
   .memories-grid { grid-template-columns: 1fr; }
@@ -785,12 +786,10 @@ body {
   padding: 10px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
 }
 .memory-content {
   display: flex;
   flex-direction: column;
-  flex: 1;
   padding-top: 6px;
 }
 .memory-title {
@@ -803,7 +802,6 @@ body {
   color: #7a6e5a;
   font-size: 0.9rem;
   line-height: 1.55;
-  flex: 1;
   margin-bottom: 4px;
   word-break: break-word;
   overflow-wrap: break-word;
