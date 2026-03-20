@@ -3,7 +3,10 @@
     "allow": [
       "Bash(find . -not -path ./node_modules/* -not -path ./backend/node_modules/* -type d)",
       "Bash(npm run:*)",
-      "Bash(node --check \"c:/Users/moriy/OneDrive/Desktop/מוריה/yehudith/backend/api/server.js\")"
+      "Bash(node --check \"c:/Users/moriy/OneDrive/Desktop/מוריה/yehudith/backend/api/server.js\")",
+      "Bash(find /c/Users/moriy/yehudith -name .env* -type f)",
+      "Bash(/tmp/trace.txt:*)",
+      "Read(//tmp/**)"
     ]
   }
 }
