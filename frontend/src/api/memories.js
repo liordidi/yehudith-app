@@ -15,6 +15,36 @@ if (!API) {
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
+/**
+ * Submit a new memory for moderation.
+ * Inserts with status='pending' — will not appear publicly until approved.
+ * image upload is optional; sends directly to Supabase Storage.
+ */
+export async function submitMemory({ name, title, text, imageFile }) {
+  let image_url = null;
+
+  if (imageFile) {
+    const ext = imageFile.name.split('.').pop().toLowerCase().replace('jpeg', 'jpg');
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: uploadErr } = await supabase.storage
+      .from('memory-images')
+      .upload(filename, imageFile, { contentType: imageFile.type });
+    if (uploadErr) throw new Error('שגיאה בהעלאת התמונה');
+    const { data: urlData } = supabase.storage.from('memory-images').getPublicUrl(filename);
+    image_url = urlData.publicUrl;
+  }
+
+  const { error } = await supabase.from('memories').insert({
+    name:      name.trim(),
+    title:     title?.trim() || null,
+    text:      text.trim(),
+    image_url,
+    status:    'pending',
+  });
+
+  if (error) throw new Error('שגיאה בשמירת הזיכרון');
+}
+
 /** Fetch all approved memories (visible to everyone). */
 export async function fetchApprovedMemories() {
   const { data, error } = await supabase

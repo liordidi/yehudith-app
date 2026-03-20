@@ -23,7 +23,6 @@ export const memorialData = {
     buttons: [
       { label: "צפו בזיכרונות",         action: "scrollTo", scrollTo: "memories-section" },
       { label: "צפו בשירים שהיא אהבה", action: "scrollTo", scrollTo: "songs-section" },
-      { label: "צפו בהודעות שלה",       action: "scrollTo", scrollTo: "messages-section" },
     ],
   },
   gallery: {

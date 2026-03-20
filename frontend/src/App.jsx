@@ -5,7 +5,7 @@ import { HeroSection } from './components/HeroSection';
 import { GallerySection } from './components/GallerySection';
 import { MemoriesSection } from './components/MemoriesSection';
 import { SongsSection } from './components/SongsSection';
-import { MessagesSection } from './components/MessagesSection';
+import { SubmitMemoryForm } from './components/SubmitMemoryForm';
 import { CandleSection } from './components/CandleSection';
 import { Footer } from './components/Footer';
 import {
@@ -102,12 +102,10 @@ function App() {
           memories={{ title: memorialData.memories.title, items: serverMemories }}
           fetchError={memoriesFetchError}
         />
+        <SubmitMemoryForm />
       </div>
       <div id="songs-section">
         <SongsSection songs={memorialData.songs} />
-      </div>
-      <div id="messages-section">
-        <MessagesSection messages={memorialData.messages} />
       </div>
       <CandleSection candle={memorialData.candle} />
       <Footer footer={memorialData.footer} />
