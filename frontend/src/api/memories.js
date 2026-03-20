@@ -29,7 +29,7 @@ export async function submitMemory({ name, title, text, imageFile }) {
     const { error: uploadErr } = await supabase.storage
       .from('memory-images')
       .upload(filename, imageFile, { contentType: imageFile.type });
-    if (uploadErr) throw new Error('שגיאה בהעלאת התמונה');
+    if (uploadErr) throw new Error(`שגיאה בהעלאת התמונה: ${uploadErr.message}`);
     const { data: urlData } = supabase.storage.from('memory-images').getPublicUrl(filename);
     image_url = urlData.publicUrl;
   }

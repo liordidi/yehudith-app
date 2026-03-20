@@ -229,7 +229,7 @@ export function GallerySection({ gallery, showAdmin, adminKey }) {
     <section className="gallery-section" dir="rtl">
       <h2>{gallery.title}</h2>
 
-      {/* ── 2×2 grid ── */}
+      {/* ── 3-column grid ── */}
       <div className="gallery-grid">
         {pageItems.map(item => (
           <div

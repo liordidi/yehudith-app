@@ -21,7 +21,7 @@ export function HeroSection({ person, hero }) {
         {hero.buttons.map((btn, i) => (
           <button
             key={i}
-            className="hero-cta-btn"
+            className={`hero-cta-btn${btn.className ? ` ${btn.className}` : ''}`}
             onClick={() => handleButton(btn)}
           >
             {btn.label}
