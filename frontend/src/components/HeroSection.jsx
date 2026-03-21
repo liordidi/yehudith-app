@@ -9,9 +9,12 @@ export function HeroSection({ person, hero }) {
 
   return (
     <section className="hero-section" dir="rtl">
-      <div className="hero-img">
+      <div>
+       <div className="hero-img">
         <img src={person.portrait} alt={person.name} className="portrait" />
       </div>
+      </div>
+      <div>
       <h1 className="hero-name">{person.name}</h1>
       <div className="hero-years" dir="ltr">{person.yearsGregorian}</div>
       <div className="hero-years hero-years-hebrew">{person.yearsHebrew}</div>
@@ -28,6 +31,8 @@ export function HeroSection({ person, hero }) {
           </button>
         ))}
       </div>
+      </div>
+
     </section>
   );
 }
