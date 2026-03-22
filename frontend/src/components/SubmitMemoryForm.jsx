@@ -1,8 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { submitMemory } from '../api/memories';
 
-export function SubmitMemoryForm() {
-  const [open,            setOpen]            = useState(false);
+export function SubmitMemoryForm({ open: openProp, onOpenChange }) {
+  const controlled = openProp !== undefined;
+  const [openInternal, setOpenInternal] = useState(false);
+  const open    = controlled ? openProp    : openInternal;
+  const setOpen = controlled ? onOpenChange : setOpenInternal;
+
+  const sectionRef = useRef(null);
+
+  // When the form is opened from outside (hero button), scroll it into view
+  useEffect(() => {
+    if (open && controlled) {
+      sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [open, controlled]);
+
   const [name,            setName]            = useState('');
   const [title,           setTitle]           = useState('');
   const [text,            setText]            = useState('');
@@ -56,11 +69,13 @@ export function SubmitMemoryForm() {
 
   return (
     <>
-      <section className="share-memory-section" dir="rtl">
+      <section className="share-memory-section" ref={sectionRef} dir="rtl">
         {!open ? (
-          <button className="share-memory-btn" onClick={() => setOpen(true)}>
-            שתפו זיכרון
-          </button>
+          !controlled && (
+            <button className="share-memory-btn" onClick={() => setOpen(true)}>
+              שתפו זיכרון
+            </button>
+          )
         ) : (
           <form className="memory-form" onSubmit={handleSubmit}>
             <label>שם מלא *</label>

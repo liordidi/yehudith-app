@@ -1,9 +1,11 @@
 import React from 'react';
 
-export function HeroSection({ person, hero }) {
+export function HeroSection({ person, hero, onOpenShareForm }) {
   const handleButton = (btn) => {
     if (btn.action === 'scrollTo') {
       document.getElementById(btn.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+    } else if (btn.action === 'openShareForm') {
+      onOpenShareForm?.();
     }
   };
 

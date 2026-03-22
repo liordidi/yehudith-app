@@ -20,6 +20,9 @@ const SHOW_ADMIN = import.meta.env.DEV ||
   new URLSearchParams(window.location.search).has('admin');
 
 function App() {
+  // ── Share form ─────────────────────────────────────────────────────────────
+  const [shareFormOpen, setShareFormOpen] = useState(false);
+
   // ── Public memories ────────────────────────────────────────────────────────
   const [serverMemories,     setServerMemories]     = useState([]);
   const [memoriesFetchError, setMemoriesFetchError] = useState('');
@@ -91,6 +94,7 @@ function App() {
       <HeroSection
         person={memorialData.person}
         hero={memorialData.hero}
+        onOpenShareForm={() => setShareFormOpen(true)}
       />
       <GallerySection
         gallery={memorialData.gallery}
@@ -102,7 +106,7 @@ function App() {
           memories={{ title: memorialData.memories.title, items: serverMemories }}
           fetchError={memoriesFetchError}
         />
-        <SubmitMemoryForm />
+        <SubmitMemoryForm open={shareFormOpen} onOpenChange={setShareFormOpen} />
       </div>
       <div id="songs-section">
         <SongsSection songs={memorialData.songs} />
