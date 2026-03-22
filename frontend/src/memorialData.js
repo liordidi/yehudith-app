@@ -66,7 +66,6 @@ export const memorialData = {
   },
   candle: {
     buttonLabel: "הדליקו נר לזכרה",
-    initialCount: 12,
     countLabel: "נרות דולקים",
   },
   footer: {
