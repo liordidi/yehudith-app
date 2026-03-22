@@ -23,13 +23,26 @@ export async function fetchApprovedComments(mediaId) {
 
 /** Submit a comment for moderation (always lands as pending). */
 export async function submitComment(mediaId, name, text) {
-  const { error } = await supabase.from('image_comments').insert({
+  const payload = {
     media_id: mediaId,
     name:     name.trim(),
     text:     text.trim(),
     status:   'pending',
-  });
-  if (error) throw new Error('שגיאה בשליחת התגובה');
+  };
+
+  console.log('[comments] submitComment payload:', payload);
+
+  const { error } = await supabase
+    .from('image_comments')
+    .insert(payload);
+
+  if (error) {
+    console.error('[comments] insert FAILED — code:', error.code,
+      '| message:', error.message, '| details:', error.details);
+    throw new Error(`שגיאה בשליחת התגובה: ${error.message}`);
+  }
+
+  console.log('[comments] insert OK');
 }
 
 // ── Admin (protected by X-Admin-Key via Express) ──────────────────────────────
