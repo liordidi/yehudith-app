@@ -14,6 +14,7 @@ import {
   updateMemory,
   deleteMemory,
 } from './api/memories';
+import { AdminPanel } from './components/AdminPanel';
 
 // Admin panel is shown in dev mode OR when ?admin appears in the URL.
 const SHOW_ADMIN = import.meta.env.DEV ||
@@ -163,6 +164,9 @@ function App() {
           ))}
         </div>
       )}
+
+      {/* ── Comment moderation panel (Supabase Auth) ── */}
+      {SHOW_ADMIN && <AdminPanel />}
 
       {/* Admin edit memory modal */}
       {editingMemory && (

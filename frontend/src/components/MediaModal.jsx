@@ -1,14 +1,8 @@
 // MediaModal.jsx
 // Lightbox for enlarged gallery media + per-media comments.
-//
-// Structure:
-//   MediaModal           — overlay, backdrop-click-to-close
-//     MediaDisplay       — enlarged <img> or <video>
-//     CommentList        — approved comments
-//     CommentForm        — name + text submission (pending on submit)
-//     ModerationPanel    — DEV-only: approve / reject pending comments
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useComments } from '../hooks/useComments';
 
 // ── Enlarged media ────────────────────────────────────────────────────────────
 
@@ -36,7 +30,7 @@ function MediaDisplay({ item }) {
 // ── Single approved comment ───────────────────────────────────────────────────
 
 function CommentItem({ comment }) {
-  const date = new Date(comment.createdAt).toLocaleDateString('he-IL', {
+  const date = new Date(comment.created_at).toLocaleDateString('he-IL', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
   return (
@@ -52,11 +46,13 @@ function CommentItem({ comment }) {
 
 // ── Comment submission form ───────────────────────────────────────────────────
 
-function CommentForm({ mediaId, onAdd }) {
-  const [name, setName] = useState('');
-  const [text, setText] = useState('');
-  const [errors, setErrors] = useState({});
-  const [done, setDone] = useState(false);
+function CommentForm({ onAdd }) {
+  const [name,        setName]        = useState('');
+  const [text,        setText]        = useState('');
+  const [errors,      setErrors]      = useState({});
+  const [submitting,  setSubmitting]  = useState(false);
+  const [done,        setDone]        = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const validate = () => {
     const e = {};
@@ -65,15 +61,19 @@ function CommentForm({ mediaId, onAdd }) {
     return e;
   };
 
-  const handleSubmit = (evt) => {
+  const handleSubmit = async (evt) => {
     evt.preventDefault();
     const e = validate();
     setErrors(e);
-    if (Object.keys(e).length === 0) {
-      onAdd(mediaId, name, text);
-      setName('');
-      setText('');
+    if (Object.keys(e).length > 0) return;
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      await onAdd(name, text);
       setDone(true);
+    } catch (err) {
+      setSubmitError(err.message || 'שגיאה בשליחה, נסו שוב');
+      setSubmitting(false);
     }
   };
 
@@ -95,6 +95,7 @@ function CommentForm({ mediaId, onAdd }) {
           onChange={e => setName(e.target.value)}
           placeholder="שמך"
           autoComplete="off"
+          disabled={submitting}
         />
         {errors.name && <div className="memory-error">{errors.name}</div>}
       </div>
@@ -106,53 +107,26 @@ function CommentForm({ mediaId, onAdd }) {
           onChange={e => setText(e.target.value)}
           placeholder="כתוב תגובה..."
           rows={3}
+          disabled={submitting}
         />
         {errors.text && <div className="memory-error">{errors.text}</div>}
       </div>
+      {submitError && <div className="memory-error">{submitError}</div>}
       <button
         type="submit"
         className="mlb-submit-btn"
-        disabled={!name.trim() || !text.trim()}
+        disabled={submitting || !name.trim() || !text.trim()}
       >
-        שלח תגובה
+        {submitting ? 'שולח...' : 'שלח תגובה'}
       </button>
     </form>
   );
 }
 
-// ── DEV-only moderation panel ─────────────────────────────────────────────────
-
-function ModerationPanel({ pending, onApprove, onReject }) {
-  const [open, setOpen] = useState(false);
-  if (!pending.length) return null;
-
-  return (
-    <div className="mlb-mod-panel">
-      <button className="mlb-mod-toggle" onClick={() => setOpen(o => !o)}>
-        {open ? '▲' : '▼'} ממתינים לאישור ({pending.length})
-      </button>
-      {open && (
-        <ul className="mlb-mod-list">
-          {pending.map(c => (
-            <li className="mlb-mod-item" key={c.id}>
-              <span><b>{c.name}:</b> {c.text}</span>
-              <div className="mlb-mod-actions">
-                <button onClick={() => onApprove(c.id)}>אשר</button>
-                <button onClick={() => onReject(c.id)}>דחה</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 // ── Main lightbox ─────────────────────────────────────────────────────────────
 
-export function MediaModal({ item, onClose, comments: { comments, addComment, approveComment, rejectComment } }) {
-  const approved = comments.filter(c => c.mediaId === item.id && c.status === 'approved');
-  const pending  = comments.filter(c => c.mediaId === item.id && c.status === 'pending');
+export function MediaModal({ item, onClose }) {
+  const { comments, addComment, loading } = useComments(item.id);
 
   // Close on Escape key.
   useEffect(() => {
@@ -182,21 +156,15 @@ export function MediaModal({ item, onClose, comments: { comments, addComment, ap
         <div className="mlb-comments">
           <h3 className="mlb-comments-title">תגובות</h3>
 
-          {approved.length === 0 ? (
+          {loading ? (
+            <p className="mlb-comments-empty">טוען...</p>
+          ) : comments.length === 0 ? (
             <p className="mlb-comments-empty">היה הראשון להגיב על תמונה זו</p>
           ) : (
-            approved.map(c => <CommentItem key={c.id} comment={c} />)
+            comments.map(c => <CommentItem key={c.id} comment={c} />)
           )}
 
-          <CommentForm mediaId={item.id} onAdd={addComment} />
-
-          {import.meta.env.DEV && (
-            <ModerationPanel
-              pending={pending}
-              onApprove={approveComment}
-              onReject={rejectComment}
-            />
-          )}
+          <CommentForm onAdd={addComment} />
         </div>
 
       </div>

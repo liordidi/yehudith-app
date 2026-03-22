@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { galleryItems } from '../galleryAssets';
 import { VideoThumbnail } from './VideoThumbnail';
 import { MediaModal } from './MediaModal';
-import { useComments } from '../hooks/useComments';
 import { fetchGallerySettings, saveGallerySettings } from '../api/gallery';
 
 // ── Display settings helpers ──────────────────────────────────────────────────
@@ -197,7 +196,6 @@ export function GallerySection({ gallery, showAdmin, adminKey }) {
   const [activeItem,       setActiveItem]      = useState(null);
   const [editingItem,      setEditingItem]      = useState(null);
   const [displaySettings,  setDisplaySettings] = useState(() => lsLoad() || {});
-  const commentsHook = useComments();
 
   const totalPages = Math.ceil(galleryItems.length / ITEMS_PER_PAGE);
   const pageItems  = galleryItems.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
@@ -298,7 +296,6 @@ export function GallerySection({ gallery, showAdmin, adminKey }) {
         <MediaModal
           item={activeItem}
           onClose={() => setActiveItem(null)}
-          comments={commentsHook}
         />
       )}
     </section>
