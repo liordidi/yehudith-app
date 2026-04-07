@@ -506,16 +506,6 @@ body {
 .hero-cta-btn:hover {
   background: #e6e2d8;
 }
-.hero-cta-share {
-  background: #fbd3cc;
-  color: #4f403b;
-}
-.hero-cta-share:hover {
-  background: #d9a498;
-}
-.hero-cta-share:active {
-  background: #cf9588;
-}
 
 /* Gallery Section */
 .gallery-section {
