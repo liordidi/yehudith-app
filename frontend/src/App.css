@@ -907,6 +907,10 @@ body {
 .memories-grid {
   columns: 2;
   column-gap: 12px;
+  direction: rtl;
+  text-align: right;
+  padding-inline: 1px;
+  box-sizing: border-box;
 }
 @media (max-width: 339px) {
   .memories-grid {
