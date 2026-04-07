@@ -923,7 +923,7 @@ body {
   box-shadow: 0 1px 4px rgba(80,80,80,0.08);
   box-sizing: border-box;
   padding: 9px;
-  display: inline-flex;
+  display: flex;
   width: 100%;
   flex-direction: column;
   margin-bottom: 8px;
