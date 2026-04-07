@@ -921,6 +921,7 @@ body {
   background: #f8f6f3;
   border-radius: 16px;
   box-shadow: 0 1px 4px rgba(80,80,80,0.08);
+  box-sizing: border-box;
   padding: 9px;
   display: inline-flex;
   width: 100%;
