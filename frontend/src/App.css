@@ -530,7 +530,12 @@ body {
   gap: 12px;
   align-items: start;
 }
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 339px) {
   .gallery-grid {
     grid-template-columns: 1fr;
   }
@@ -553,13 +558,11 @@ body {
   position: relative;
   width: 100%;
   overflow: hidden;
-}*
+}
 .gallery-thumb-img {
-    width: 100%;
-    height: 100vh;
-    display: block;
-    max-height: 300px;
-  object-fit: cover; /* default; overridden by inline style */
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* ── Admin edit button overlay ───────────────────────────────────────────── */
@@ -635,11 +638,11 @@ body {
   width: 100%;
 }
 .gallery-thumb-wrap > .gallery-video-wrapper {
-  height: 100%;
+  height: auto;
 }
 .gallery-thumb-wrap .gallery-video-placeholder {
   width: 100%;
-  height: 100%;
+  height: auto;
   background: #e6e2d8;
 }
 .gallery-video-placeholder {

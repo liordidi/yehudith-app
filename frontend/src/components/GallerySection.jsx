@@ -21,15 +21,7 @@ function parseDisplay(d) {
 
 // ── Thumbnail ─────────────────────────────────────────────────────────────────
 
-function GalleryThumb({ item, display }) {
-  const d = parseDisplay(display);
-  const imgStyle = {
-    objectFit:       d.fit,
-    objectPosition:  `${d.x}% ${d.y}%`,
-    transform:       d.zoom !== 1 ? `scale(${d.zoom})` : undefined,
-    transformOrigin: `${d.x}% ${d.y}%`,
-  };
-
+function GalleryThumb({ item }) {
   return (
     <div className="gallery-thumb-wrap" >
       {item.type === 'video' ? (
@@ -37,14 +29,12 @@ function GalleryThumb({ item, display }) {
           src={item.src}
           posterSrc={item.posterSrc}
           className="gallery-thumb-img"
-          imgStyle={imgStyle}
         />
       ) : (
         <img
           className="gallery-thumb-img"
           src={item.src}
           alt={item.filename}
-          style={imgStyle}
         />
       )}
     </div>
@@ -254,7 +244,7 @@ export function GallerySection({ gallery, showAdmin, adminKey }) {
             tabIndex={0}
             onKeyDown={e => e.key === 'Enter' && setActiveItem(item)}
           >
-            <GalleryThumb item={item} display={displaySettings[item.filename]} />
+            <GalleryThumb item={item} />
 
             {showAdmin && (
               <button
