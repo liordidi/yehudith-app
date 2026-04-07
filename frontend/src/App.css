@@ -905,15 +905,12 @@ body {
   margin: 8px 0 24px;
 }
 .memories-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  columns: 2;
   column-gap: 12px;
-  row-gap: 8px;
-  align-items: start;
 }
 @media (max-width: 339px) {
   .memories-grid {
-    grid-template-columns: 1fr;
+    columns: 1;
   }
 }
 .memory-card {
@@ -921,8 +918,10 @@ body {
   border-radius: 16px;
   box-shadow: 0 1px 4px rgba(80,80,80,0.08);
   padding: 9px;
-  display: flex;
+  display: inline-flex;
+  width: 100%;
   flex-direction: column;
+  margin-bottom: 8px;
   break-inside: avoid;
   min-width: 0;
 }
