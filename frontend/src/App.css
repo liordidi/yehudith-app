@@ -507,11 +507,14 @@ body {
   background: #e6e2d8;
 }
 .hero-cta-share {
-  background: #ede6f3;
-  color: #6b6375;
+  background: #E3B4AA;
+  color: #4f403b;
 }
 .hero-cta-share:hover {
-  background: #ddd6e8;
+  background: #d9a498;
+}
+.hero-cta-share:active {
+  background: #cf9588;
 }
 
 /* Gallery Section */
