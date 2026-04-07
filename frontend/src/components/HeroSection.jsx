@@ -1,17 +1,22 @@
 import React from 'react';
 
-export function HeroSection({ person, hero }) {
+export function HeroSection({ person, hero, onOpenShareForm }) {
   const handleButton = (btn) => {
     if (btn.action === 'scrollTo') {
       document.getElementById(btn.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+    } else if (btn.action === 'openShareForm') {
+      onOpenShareForm?.();
     }
   };
 
   return (
     <section className="hero-section" dir="rtl">
-      <div className="hero-img">
+      <div>
+       <div className="hero-img">
         <img src={person.portrait} alt={person.name} className="portrait" />
       </div>
+      </div>
+      <div>
       <h1 className="hero-name">{person.name}</h1>
       <div className="hero-years" dir="ltr">{person.yearsGregorian}</div>
       <div className="hero-years hero-years-hebrew">{person.yearsHebrew}</div>
@@ -21,13 +26,15 @@ export function HeroSection({ person, hero }) {
         {hero.buttons.map((btn, i) => (
           <button
             key={i}
-            className="hero-cta-btn"
+            className={`hero-cta-btn${btn.className ? ` ${btn.className}` : ''}`}
             onClick={() => handleButton(btn)}
           >
             {btn.label}
           </button>
         ))}
       </div>
+      </div>
+
     </section>
   );
 }

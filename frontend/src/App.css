@@ -212,6 +212,38 @@
 .admin-reject-btn {
   color: #c77c7c;
 }
+.admin-panel-title {
+  color: #bfae9e;
+  margin: 0;
+}
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.admin-panel-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #a89c8c;
+}
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-panel-login {
+  padding: 4px 0;
+}
+.admin-comment-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #b0a090;
+  margin-bottom: 2px;
+}
 
 /* ── Admin edit memory modal ─────────────────────────────────────────────── */
 .edit-memory-modal {
@@ -498,11 +530,6 @@ body {
   gap: 12px;
   align-items: start;
 }
-@media (max-width: 1024px) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 @media (max-width: 640px) {
   .gallery-grid {
     grid-template-columns: 1fr;
@@ -528,9 +555,10 @@ body {
   overflow: hidden;
 }*
 .gallery-thumb-img {
-  width: 100%;
-  height: 100%;
-  display: block;
+    width: 100%;
+    height: 100vh;
+    display: block;
+    max-height: 300px;
   object-fit: cover; /* default; overridden by inline style */
 }
 

@@ -1,56 +1,28 @@
 // useComments.js
-// Manages per-media comments backed by localStorage.
-//
-// Comment shape:
-//   { id, mediaId, name, text, status: 'pending' | 'approved', createdAt }
-//
-// All new comments land in 'pending'.
-// Only 'approved' comments are shown publicly in the media modal.
-// Approval is simulated in-browser via the dev moderation panel.
+// Fetches approved comments for a specific gallery image from Supabase.
+// Public submission inserts as 'pending' — not visible until an admin approves.
 
 import { useState, useEffect, useCallback } from 'react';
+import { fetchApprovedComments, submitComment } from '../api/comments';
 
-const STORAGE_KEY = 'memorial_media_comments';
+export function useComments(mediaId) {
+  const [comments, setComments] = useState([]);
+  const [loading,  setLoading]  = useState(false);
 
-function load() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-export function useComments() {
-  const [comments, setComments] = useState(load);
-
-  // Persist on every change.
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(comments));
-  }, [comments]);
+    if (!mediaId) return;
+    let cancelled = false;
+    setLoading(true);
+    fetchApprovedComments(mediaId)
+      .then(data  => { if (!cancelled) setComments(data); })
+      .catch(()   => { if (!cancelled) setComments([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [mediaId]);
 
-  const addComment = useCallback((mediaId, name, text) => {
-    setComments(prev => [
-      ...prev,
-      {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        mediaId,
-        name: name.trim(),
-        text: text.trim(),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-  }, []);
+  const addComment = useCallback(async (name, text) => {
+    await submitComment(mediaId, name, text);
+  }, [mediaId]);
 
-  const approveComment = useCallback((id) => {
-    setComments(prev =>
-      prev.map(c => c.id === id ? { ...c, status: 'approved' } : c)
-    );
-  }, []);
-
-  const rejectComment = useCallback((id) => {
-    setComments(prev => prev.filter(c => c.id !== id));
-  }, []);
-
-  return { comments, addComment, approveComment, rejectComment };
+  return { comments, addComment, loading };
 }

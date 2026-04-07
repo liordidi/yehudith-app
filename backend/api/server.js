@@ -233,6 +233,40 @@ app.put('/api/admin/gallery-settings', requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Admin: GET /api/admin/comments/pending ────────────────────────────────────
+app.get('/api/admin/comments/pending', requireAdmin, async (_req, res) => {
+  const { data, error } = await supabase
+    .from('image_comments')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+
+  if (error) return res.status(500).json({ error: 'שגיאה בטעינת תגובות' });
+  res.json(data);
+});
+
+// ── Admin: PATCH /api/admin/comments/:id — approve ────────────────────────────
+app.patch('/api/admin/comments/:id', requireAdmin, async (req, res) => {
+  const { error } = await supabase
+    .from('image_comments')
+    .update({ status: 'approved' })
+    .eq('id', req.params.id);
+
+  if (error) return res.status(500).json({ error: 'שגיאה באישור תגובה' });
+  res.json({ ok: true });
+});
+
+// ── Admin: DELETE /api/admin/comments/:id — reject ────────────────────────────
+app.delete('/api/admin/comments/:id', requireAdmin, async (req, res) => {
+  const { error } = await supabase
+    .from('image_comments')
+    .delete()
+    .eq('id', req.params.id);
+
+  if (error) return res.status(500).json({ error: 'שגיאה במחיקת תגובה' });
+  res.json({ ok: true });
+});
+
 // ── Error handler ─────────────────────────────────────────────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {

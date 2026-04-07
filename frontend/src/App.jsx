@@ -5,7 +5,7 @@ import { HeroSection } from './components/HeroSection';
 import { GallerySection } from './components/GallerySection';
 import { MemoriesSection } from './components/MemoriesSection';
 import { SongsSection } from './components/SongsSection';
-import { MessagesSection } from './components/MessagesSection';
+import { SubmitMemoryForm } from './components/SubmitMemoryForm';
 import { CandleSection } from './components/CandleSection';
 import { Footer } from './components/Footer';
 import {
@@ -14,12 +14,16 @@ import {
   updateMemory,
   deleteMemory,
 } from './api/memories';
+import { AdminPanel } from './components/AdminPanel';
 
 // Admin panel is shown in dev mode OR when ?admin appears in the URL.
 const SHOW_ADMIN = import.meta.env.DEV ||
   new URLSearchParams(window.location.search).has('admin');
 
 function App() {
+  // ── Share form ─────────────────────────────────────────────────────────────
+  const [shareFormOpen, setShareFormOpen] = useState(false);
+
   // ── Public memories ────────────────────────────────────────────────────────
   const [serverMemories,     setServerMemories]     = useState([]);
   const [memoriesFetchError, setMemoriesFetchError] = useState('');
@@ -91,6 +95,7 @@ function App() {
       <HeroSection
         person={memorialData.person}
         hero={memorialData.hero}
+        onOpenShareForm={() => setShareFormOpen(true)}
       />
       <GallerySection
         gallery={memorialData.gallery}
@@ -102,12 +107,10 @@ function App() {
           memories={{ title: memorialData.memories.title, items: serverMemories }}
           fetchError={memoriesFetchError}
         />
+        <SubmitMemoryForm open={shareFormOpen} onOpenChange={setShareFormOpen} />
       </div>
       <div id="songs-section">
         <SongsSection songs={memorialData.songs} />
-      </div>
-      <div id="messages-section">
-        <MessagesSection messages={memorialData.messages} />
       </div>
       <CandleSection candle={memorialData.candle} />
       <Footer footer={memorialData.footer} />
@@ -161,6 +164,9 @@ function App() {
           ))}
         </div>
       )}
+
+      {/* ── Comment moderation panel (Supabase Auth) ── */}
+      {SHOW_ADMIN && <AdminPanel />}
 
       {/* Admin edit memory modal */}
       {editingMemory && (

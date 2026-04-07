@@ -23,7 +23,7 @@ export const memorialData = {
     buttons: [
       { label: "צפו בזיכרונות",         action: "scrollTo", scrollTo: "memories-section" },
       { label: "צפו בשירים שהיא אהבה", action: "scrollTo", scrollTo: "songs-section" },
-      { label: "צפו בהודעות שלה",       action: "scrollTo", scrollTo: "messages-section" },
+      { label: "שתפו זיכרון",            action: "openShareForm", className: "hero-cta-share" },
     ],
   },
   gallery: {
@@ -66,7 +66,6 @@ export const memorialData = {
   },
   candle: {
     buttonLabel: "הדליקו נר לזכרה",
-    initialCount: 12,
     countLabel: "נרות דולקים",
   },
   footer: {
