@@ -519,8 +519,15 @@ body {
   padding: 24px 16px;
 }
 .gallery-section h2,
-.memories-section h2 {
+.memories-section h2,
+.songs-section h2,
+.messages-section h2 {
   text-align: center;
+  color: #4a4036;
+  font-weight: 600;
+  line-height: 1.2;
+  opacity: 1;
+  text-shadow: none;
 }
 
 /* ── Paged masonry-style gallery ─────────────────────────────────────────── */
@@ -981,10 +988,6 @@ body {
 /* ── Songs Section ───────────────────────────────────────────────────────── */
 .songs-section {
   padding: 24px 16px;
-}
-.songs-section h2,
-.messages-section h2 {
-  text-align: center;
 }
 .songs-carousel {
   display: flex;
