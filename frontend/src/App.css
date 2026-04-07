@@ -688,6 +688,10 @@ body {
   max-width: 540px;
   overflow: hidden;
 }
+.mlb-box--video {
+  width: auto;
+  max-width: min(90vw, 540px);
+}
 .mlb-close {
   position: absolute;
   top: 12px;
@@ -710,10 +714,19 @@ body {
   background: #f3ede6;
 }
 .mlb-media {
+  display: block;
+}
+.mlb-media--image {
   width: 100%;
   max-height: 62vh;
   object-fit: contain;
-  display: block;
+  background: #2a2520;
+}
+.mlb-media--video {
+  width: auto;
+  height: auto;
+  max-width: min(90vw, 540px);
+  max-height: 78vh;
   background: #2a2520;
 }
 

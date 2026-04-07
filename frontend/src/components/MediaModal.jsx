@@ -10,7 +10,7 @@ function MediaDisplay({ item }) {
   if (item.type === 'video') {
     return (
       <video
-        className="mlb-media"
+        className="mlb-media mlb-media--video"
         src={item.src}
         poster={item.posterSrc || undefined}
         controls
@@ -21,7 +21,7 @@ function MediaDisplay({ item }) {
   }
   return (
     <img
-      className="mlb-media"
+      className="mlb-media mlb-media--image"
       src={item.src}
       alt={item.filename}
     />
@@ -148,7 +148,7 @@ export function MediaModal({ item, onClose }) {
 
   return (
     <div className="mlb-overlay" onClick={handleOverlay} role="dialog" aria-modal="true" dir="rtl">
-      <div className="mlb-box">
+      <div className={`mlb-box${item.type === 'video' ? ' mlb-box--video' : ''}`}>
 
         <button className="mlb-close" onClick={onClose} aria-label="סגור">✕</button>
 
