@@ -523,25 +523,27 @@ body {
   text-align: center;
 }
 
-/* ── Paged 3-column grid ─────────────────────────────────────────────────── */
+/* ── Paged masonry-style gallery ─────────────────────────────────────────── */
 .gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  align-items: start;
+  columns: 3;
+  column-gap: 12px;
 }
 @media (max-width: 1024px) {
   .gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    columns: 2;
   }
 }
 @media (max-width: 339px) {
   .gallery-grid {
-    grid-template-columns: 1fr;
+    columns: 1;
   }
 }
 .gallery-card {
   position: relative;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 12px;
+  break-inside: avoid;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
