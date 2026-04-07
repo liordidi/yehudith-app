@@ -50,6 +50,7 @@ const posterByMediaPath = Object.fromEntries(
 );
 
 export const galleryItems = Object.entries(mediaModules)
+  .filter(([path]) => !/\.poster\.[^.]+$/i.test(path))
   .map(([path, mod]) => {
     // path example: "./assets/gallery/family/01-photo.jpg"
     const segments = path.split('/');
