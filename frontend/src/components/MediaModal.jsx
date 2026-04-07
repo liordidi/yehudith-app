@@ -12,6 +12,7 @@ function MediaDisplay({ item }) {
       <video
         className="mlb-media"
         src={item.src}
+        poster={item.posterSrc || undefined}
         controls
         autoPlay
         playsInline

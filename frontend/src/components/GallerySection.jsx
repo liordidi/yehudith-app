@@ -35,6 +35,7 @@ function GalleryThumb({ item, display }) {
       {item.type === 'video' ? (
         <VideoThumbnail
           src={item.src}
+          posterSrc={item.posterSrc}
           className="gallery-thumb-img"
           imgStyle={imgStyle}
         />
@@ -58,6 +59,7 @@ function GalleryItemEditor({ item, display: initial, onSave, onClose }) {
   const [error,   setError]   = useState('');
 
   const set = (k, v) => setD(prev => ({ ...prev, [k]: v }));
+  const videoPosterSrc = item.type === 'video' ? item.posterSrc : null;
 
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -94,18 +96,32 @@ function GalleryItemEditor({ item, display: initial, onSave, onClose }) {
             onClick={item.type === 'image' ? handleImageClick : undefined}
             title={item.type === 'image' ? 'לחץ לשינוי מוקד' : undefined}
           >
-            <img
-              src={item.src}
-              alt=""
-              className="focal-picker-img"
-              style={{
-                objectFit:       d.fit,
-                objectPosition:  `${d.x}% ${d.y}%`,
-                transform:       d.zoom !== 1 ? `scale(${d.zoom})` : undefined,
-                transformOrigin: `${d.x}% ${d.y}%`,
-              }}
-              draggable={false}
-            />
+            {item.type === 'video' ? (
+              videoPosterSrc ? (
+                <img
+                  src={videoPosterSrc}
+                  alt=""
+                  className="focal-picker-img"
+                  style={{ objectFit: 'cover' }}
+                  draggable={false}
+                />
+              ) : (
+                <div className="focal-picker-img gallery-video-placeholder" aria-hidden="true" />
+              )
+            ) : (
+              <img
+                src={item.src}
+                alt=""
+                className="focal-picker-img"
+                style={{
+                  objectFit:       d.fit,
+                  objectPosition:  `${d.x}% ${d.y}%`,
+                  transform:       d.zoom !== 1 ? `scale(${d.zoom})` : undefined,
+                  transformOrigin: `${d.x}% ${d.y}%`,
+                }}
+                draggable={false}
+              />
+            )}
             {item.type === 'image' && (
               <>
                 <div className="focal-dot" style={{ left: `${d.x}%`, top: `${d.y}%` }} />

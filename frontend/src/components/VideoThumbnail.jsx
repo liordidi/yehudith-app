@@ -61,15 +61,17 @@ function extractFrame(src) {
   });
 }
 
-export function VideoThumbnail({ src, className, imgStyle }) {
-  const [thumbnail, setThumbnail] = useState(null); // null = loading
+export function VideoThumbnail({ src, posterSrc, className, imgStyle }) {
+  const [thumbnailState, setThumbnailState] = useState({ src: null, dataUrl: null });
 
   useEffect(() => {
+    if (posterSrc) return undefined;
+
     let cancelled = false;
 
     extractFrame(src)
       .then(dataUrl => {
-        if (!cancelled) setThumbnail(dataUrl);
+        if (!cancelled) setThumbnailState({ src, dataUrl });
       })
       .catch(() => {
         // On failure (iOS restriction, CORS, very short video) leave thumbnail
@@ -79,12 +81,14 @@ export function VideoThumbnail({ src, className, imgStyle }) {
     return () => {
       cancelled = true;
     };
-  }, [src]);
+  }, [posterSrc, src]);
 
   return (
     <div className="gallery-video-wrapper">
-      {thumbnail
-        ? <img src={thumbnail} className={className} alt="תצוגה מקדימה" style={imgStyle} />
+      {posterSrc
+        ? <img src={posterSrc} className={className} alt="תצוגה מקדימה" style={imgStyle} />
+        : thumbnailState.src === src && thumbnailState.dataUrl
+        ? <img src={thumbnailState.dataUrl} className={className} alt="תצוגה מקדימה" style={imgStyle} />
         : <div className={`${className} gallery-video-placeholder`} />
       }
       <span className="gallery-play-icon" aria-hidden="true">▶</span>

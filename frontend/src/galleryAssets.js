@@ -11,6 +11,13 @@
 //   Images: .jpg  .jpeg  .png  .webp
 //   Videos: .mp4  .mov   .webm
 //
+// Optional video posters:
+//   Add a sidecar file next to the video named:
+//   <video filename>.<video ext>.poster.(jpg|jpeg|png|webp|svg)
+//   Example:
+//   Video Project.mp4
+//   Video Project.mp4.poster.svg
+//
 // To control sort order, prefix filenames with a number:
 //   01-portrait.jpg, 02-garden.webp, 03-clip.mp4
 
@@ -25,12 +32,24 @@ const CATEGORY_MAP = {
 
 // Static glob — Vite resolves this at build time.
 // Adding a file to one of the subfolders automatically includes it here.
-const modules = import.meta.glob(
+const mediaModules = import.meta.glob(
   './assets/gallery/**/*.{jpg,jpeg,png,webp,mp4,mov,webm}',
   { eager: true }
 );
 
-export const galleryItems = Object.entries(modules)
+const posterModules = import.meta.glob(
+  './assets/gallery/**/*.poster.{jpg,jpeg,png,webp,svg}',
+  { eager: true }
+);
+
+const posterByMediaPath = Object.fromEntries(
+  Object.entries(posterModules).map(([path, mod]) => {
+    const mediaPath = path.replace(/\.poster\.[^.]+$/i, '');
+    return [mediaPath, mod.default];
+  })
+);
+
+export const galleryItems = Object.entries(mediaModules)
   .map(([path, mod]) => {
     // path example: "./assets/gallery/family/01-photo.jpg"
     const segments = path.split('/');
@@ -43,6 +62,7 @@ export const galleryItems = Object.entries(modules)
       id:       path,
       src:      mod.default,
       type,
+      posterSrc: type === 'video' ? posterByMediaPath[path] ?? null : null,
       category: CATEGORY_MAP[folderName] ?? folderName,
       folderName,
       filename,
