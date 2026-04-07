@@ -38,10 +38,8 @@ export function MemoriesSection({ memories, fetchError }) {
         {memories.items.map((mem, i) => {
           const d = parseDisplaySafe(mem.image_crop);
           const imgStyle = {
-            objectFit:       d.fit,
+            objectFit:       'contain',
             objectPosition:  `${d.x}% ${d.y}%`,
-            transform:       d.zoom !== 1 ? `scale(${d.zoom})` : undefined,
-            transformOrigin: `${d.x}% ${d.y}%`,
           };
           return (
             <div className="memory-card" key={mem.id ?? i}>

@@ -859,11 +859,15 @@ body {
   margin: 8px 0 24px;
 }
 .memories-grid {
-  columns: 2;
-  column-gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
 }
 @media (max-width: 380px) {
-  .memories-grid { columns: 1; }
+  .memories-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .memory-card {
   background: #f8f6f3;
@@ -873,19 +877,23 @@ body {
   display: flex;
   flex-direction: column;
   break-inside: avoid;
-  margin-bottom: 12px;
+  min-width: 0;
 }
 .memory-image-wrap {
   width: 100%;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   margin-bottom: 8px;
+  background: #ede9e3;
 }
 .memory-image {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover; /* overridden by inline style */
+  object-fit: contain; /* kept inline for clarity in the component */
 }
 .memory-content {
   display: flex;
