@@ -1342,104 +1342,10 @@ main {
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════════════
-   DESKTOP LAYOUT — additive overrides only.
-   Every rule below lives inside min-width media queries.
-   Mobile base styles above this block are completely untouched.
-   ════════════════════════════════════════════════════════════════════════════ */
-
-@media (min-width: 768px) {
-
-  /* ── Page container: lift the 600px cap, give it air ──────────────────── */
-  .memorial-page {
-    max-width: 940px;
-    margin: 32px auto;
-    border-radius: 24px;
-    padding-bottom: 64px;
-  }
-
-  /* ── Hero: two-column (RTL: portrait right, text left) ─────────────────── */
-  .hero-section {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    text-align: right;
-    padding: 48px 56px 56px;
-    gap: 52px;
-  }
-
-  /* Image column — fixed width, no shrink */
-  .hero-section > div:first-child {
-    flex: 0 0 auto;
-  }
-
-  /* Text column — takes remaining space */
-  .hero-section > div:last-child {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  /* Remove the bottom margin the stacked mobile layout needed */
-  .hero-img {
-    margin-bottom: 0;
-  }
-
-  .portrait {
-    width: 270px;
-    max-width: none;
-  }
-
-  .hero-name {
-    font-size: 2.6rem;
-    margin-top: 0;
-  }
-
-  .hero-text {
-    font-size: 1.25rem;
-  }
-
-  .hero-short {
-    font-size: 1.05rem;
-  }
-
-  /* CTA buttons: align to RTL start (right) instead of centered */
-  .hero-cta {
-    justify-content: flex-start;
-    margin-top: 12px;
-  }
-
-  /* ── Section padding: proper desktop breathing room ────────────────────── */
-  .gallery-section,
-  .memories-section,
-  .songs-section,
-  .share-memory-section,
-  .candle-section,
-  .footer-section {
-    padding: 36px 52px;
-  }
-
-  /* ── Gallery: always 3 columns on desktop (overrides the 1024px drop) ─── */
-  .gallery-grid {
-    columns: 3;
-    column-gap: 16px;
-  }
-
-  /* ── Memories: 3-column masonry on desktop ─────────────────────────────── */
-  .memories-grid {
-    columns: 3;
-    column-gap: 16px;
-  }
-
-  /* ── Songs: wider cards, more gap — keep horizontal scroll model ────────── */
-  .songs-carousel {
-    gap: 16px;
-  }
-
-  .song-card {
-    flex: 0 0 190px;
-    padding: 22px 14px 18px;
-  }
-}
+/* Legacy @media (min-width: 768px) shared block removed.
+   Desktop layout is now handled exclusively by .desktop-page
+   inside @media (min-width: 1024px) — see the scoped block below.
+   MobileLayout uses only base styles for all viewport widths. */
 
 @media (min-width: 1100px) {
 
@@ -1482,3 +1388,132 @@ main {
     column-gap: 18px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   DESKTOP-PAGE SCOPED STYLES
+   Anchored to .desktop-page which only exists in layouts/DesktopLayout.jsx.
+   Wrapped in @media (min-width: 1024px) as a CSS safety guard.
+   JS dispatch (useIsDesktop) and this media query both enforce 1024px.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+.desktop-page {
+  max-width: 1120px;
+  margin: 32px auto;
+  border-radius: 24px;
+  padding-bottom: 80px;
+}
+
+/* ── Hero: two-column layout (RTL: portrait right, text left) ────────────── */
+.desktop-page .hero-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: right;
+  padding: 60px clamp(40px, 5.5vw, 72px) 68px;
+  gap: 68px;
+}
+
+/* Image column: fixed width, never shrinks */
+.desktop-page .hero-section > div:first-child {
+  flex: 0 0 auto;
+}
+
+/* Text column: takes all remaining space */
+.desktop-page .hero-section > div:last-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Portrait: fixed width + richer shadow on desktop */
+.desktop-page .hero-img {
+  margin-bottom: 0;
+}
+
+.desktop-page .portrait {
+  width: 300px;
+  max-width: none;
+  box-shadow: 0 10px 48px rgba(80, 58, 40, 0.20);
+}
+
+/* Typography scale for desktop */
+.desktop-page .hero-name {
+  font-size: 2.8rem;
+  margin-top: 0;
+  line-height: 1.15;
+}
+
+.desktop-page .hero-text {
+  font-size: 1.25rem;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.desktop-page .hero-short {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+
+/* CTA buttons: align to RTL start (right edge) instead of center */
+.desktop-page .hero-cta {
+  justify-content: flex-start;
+  margin-top: 14px;
+  gap: 10px;
+}
+
+/* ── Section headings: start-aligned on desktop (RTL right = start) ─────── */
+.desktop-page .gallery-section h2,
+.desktop-page .memories-section h2,
+.desktop-page .songs-section h2 {
+  text-align: right;
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+  margin-bottom: 20px;
+}
+
+/* ── Section padding: scales between 40px (1024px) and 72px (1120px+) ───── */
+.desktop-page .gallery-section,
+.desktop-page .memories-section,
+.desktop-page .songs-section,
+.desktop-page .share-memory-section,
+.desktop-page .candle-section {
+  padding: 44px clamp(40px, 5.5vw, 72px);
+}
+
+/* Footer: slightly tighter top, with a separator */
+.desktop-page .footer-section {
+  padding: 32px clamp(40px, 5.5vw, 72px) 20px;
+  border-top: 1px solid #ede9e3;
+  margin-top: 8px;
+}
+
+/* ── Gallery: 3-column masonry with comfortable gaps ────────────────────── */
+.desktop-page .gallery-grid {
+  columns: 3;
+  column-gap: 18px;
+}
+
+/* ── Memories: 2-column masonry for readable text-heavy cards ────────────── */
+.desktop-page .memories-grid {
+  columns: 2;
+  column-gap: 18px;
+}
+
+.desktop-page .memory-card {
+  padding: 14px;
+}
+
+/* ── Songs: wider cards, more gap — horizontal scroll preserved ──────────── */
+.desktop-page .songs-carousel {
+  gap: 18px;
+}
+
+.desktop-page .song-card {
+  flex: 0 0 200px;
+  padding: 22px 16px 18px;
+}
+
+} /* end @media (min-width: 1024px) */

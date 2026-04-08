@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { memorialData } from './memorialData';
-import { HeroSection } from './components/HeroSection';
-import { GallerySection } from './components/GallerySection';
-import { MemoriesSection } from './components/MemoriesSection';
-import { SongsSection } from './components/SongsSection';
-import { SubmitMemoryForm } from './components/SubmitMemoryForm';
-import { CandleSection } from './components/CandleSection';
-import { Footer } from './components/Footer';
+import { MemorialPage } from './MemorialPage';
+import { AdminPanel } from './components/AdminPanel';
 import {
   fetchApprovedMemories,
   fetchApprovedMemoriesAdmin,
   updateMemory,
   deleteMemory,
 } from './api/memories';
-import { AdminPanel } from './components/AdminPanel';
 
 // Admin panel is shown in dev mode OR when ?admin appears in the URL.
 const SHOW_ADMIN = import.meta.env.DEV ||
@@ -91,31 +84,19 @@ function App() {
   };
 
   return (
-    <div className="memorial-page" dir="rtl">
-      <HeroSection
-        person={memorialData.person}
-        hero={memorialData.hero}
+    <>
+      {/* ── Page layout (mobile or desktop, never both) ── */}
+      <MemorialPage
+        shareFormOpen={shareFormOpen}
         onOpenShareForm={() => setShareFormOpen(true)}
-      />
-      <GallerySection
-        gallery={memorialData.gallery}
+        onShareFormChange={setShareFormOpen}
+        serverMemories={serverMemories}
+        memoriesFetchError={memoriesFetchError}
         showAdmin={SHOW_ADMIN}
         adminKey={adminKey}
       />
-      <div id="memories-section">
-        <MemoriesSection
-          memories={{ title: memorialData.memories.title, items: serverMemories }}
-          fetchError={memoriesFetchError}
-        />
-        <SubmitMemoryForm open={shareFormOpen} onOpenChange={setShareFormOpen} />
-      </div>
-      <div id="songs-section">
-        <SongsSection songs={memorialData.songs} />
-      </div>
-      <CandleSection candle={memorialData.candle} />
-      <Footer footer={memorialData.footer} />
 
-      {/* ── Admin panel ── */}
+      {/* ── Admin overlays — outside layout so they mount only once ── */}
       {SHOW_ADMIN && (
         <div className="memory-pending-panel" dir="rtl">
           <h4>ניהול</h4>
@@ -168,7 +149,7 @@ function App() {
       {/* ── Comment moderation panel (Supabase Auth) ── */}
       {SHOW_ADMIN && <AdminPanel />}
 
-      {/* Admin edit memory modal */}
+      {/* ── Admin edit memory modal (position: fixed, viewport-agnostic) ── */}
       {editingMemory && (
         <EditMemoryModal
           memory={editingMemory}
@@ -176,11 +157,13 @@ function App() {
           onClose={() => setEditingMemory(null)}
         />
       )}
-    </div>
+    </>
   );
 }
 
 // ── Image display settings helpers ────────────────────────────────────────────
+// Kept here because EditMemoryModal (below) uses them and is defined in this
+// file. If EditMemoryModal is ever extracted, move these with it.
 const DISPLAY_DEFAULTS = { x: 50, y: 50, zoom: 1, height: 160, fit: 'cover' };
 
 function parseDisplaySafe(cropVal) {
@@ -201,6 +184,8 @@ function parseDisplaySafe(cropVal) {
 }
 
 // ── Admin: edit memory text + image (replace/remove) + display settings ──────
+// Kept in App.jsx because it uses parseDisplaySafe and DISPLAY_DEFAULTS from
+// this file's module scope. Receives all data via props — safe to extract later.
 function EditMemoryModal({ memory, onSave, onClose }) {
   const [name,            setName]            = useState(memory?.name  ?? '');
   const [title,           setTitle]           = useState(memory?.title ?? '');
