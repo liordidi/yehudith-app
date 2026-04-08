@@ -1341,3 +1341,144 @@ main {
     border-right-color: var(--border);
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   DESKTOP LAYOUT — additive overrides only.
+   Every rule below lives inside min-width media queries.
+   Mobile base styles above this block are completely untouched.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) {
+
+  /* ── Page container: lift the 600px cap, give it air ──────────────────── */
+  .memorial-page {
+    max-width: 940px;
+    margin: 32px auto;
+    border-radius: 24px;
+    padding-bottom: 64px;
+  }
+
+  /* ── Hero: two-column (RTL: portrait right, text left) ─────────────────── */
+  .hero-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: right;
+    padding: 48px 56px 56px;
+    gap: 52px;
+  }
+
+  /* Image column — fixed width, no shrink */
+  .hero-section > div:first-child {
+    flex: 0 0 auto;
+  }
+
+  /* Text column — takes remaining space */
+  .hero-section > div:last-child {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* Remove the bottom margin the stacked mobile layout needed */
+  .hero-img {
+    margin-bottom: 0;
+  }
+
+  .portrait {
+    width: 270px;
+    max-width: none;
+  }
+
+  .hero-name {
+    font-size: 2.6rem;
+    margin-top: 0;
+  }
+
+  .hero-text {
+    font-size: 1.25rem;
+  }
+
+  .hero-short {
+    font-size: 1.05rem;
+  }
+
+  /* CTA buttons: align to RTL start (right) instead of centered */
+  .hero-cta {
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+
+  /* ── Section padding: proper desktop breathing room ────────────────────── */
+  .gallery-section,
+  .memories-section,
+  .songs-section,
+  .share-memory-section,
+  .candle-section,
+  .footer-section {
+    padding: 36px 52px;
+  }
+
+  /* ── Gallery: always 3 columns on desktop (overrides the 1024px drop) ─── */
+  .gallery-grid {
+    columns: 3;
+    column-gap: 16px;
+  }
+
+  /* ── Memories: 3-column masonry on desktop ─────────────────────────────── */
+  .memories-grid {
+    columns: 3;
+    column-gap: 16px;
+  }
+
+  /* ── Songs: wider cards, more gap — keep horizontal scroll model ────────── */
+  .songs-carousel {
+    gap: 16px;
+  }
+
+  .song-card {
+    flex: 0 0 190px;
+    padding: 22px 14px 18px;
+  }
+}
+
+@media (min-width: 1100px) {
+
+  /* ── Wider cap for large monitors ──────────────────────────────────────── */
+  .memorial-page {
+    max-width: 1120px;
+  }
+
+  .hero-section {
+    padding: 64px 72px 72px;
+    gap: 68px;
+  }
+
+  .portrait {
+    width: 320px;
+  }
+
+  .hero-name {
+    font-size: 3rem;
+  }
+
+  .hero-text {
+    font-size: 1.35rem;
+  }
+
+  .gallery-section,
+  .memories-section,
+  .songs-section,
+  .share-memory-section,
+  .candle-section,
+  .footer-section {
+    padding: 44px 68px;
+  }
+
+  .memories-grid {
+    column-gap: 20px;
+  }
+
+  .gallery-grid {
+    column-gap: 18px;
+  }
+}
