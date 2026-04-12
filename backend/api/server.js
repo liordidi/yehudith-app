@@ -72,8 +72,14 @@ app.get('/api/memories', async (_req, res) => {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('GET /api/memories:', error.message);
-    return res.status(500).json({ error: 'שגיאה בטעינת הזיכרונות' });
+  console.error('GET /api/memories FULL ERROR:', error);
+  return res.status(500).json({
+    error: 'שגיאה בטעינת הזיכרונות',
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code
+  });
   }
   res.json(data.map(normalizeCrop));
 });
