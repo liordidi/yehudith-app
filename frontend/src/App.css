@@ -1072,19 +1072,42 @@ a.hero-cta-btn {
   padding: 24px 16px;
   text-align: center;
 }
-.share-memory-btn {
-  font-size: 1rem;
-  padding: 10px 24px;
-  border-radius: 24px;
-  background: #E8B7C3;
-  color: #5c2d3e;
-  border: none;
-  box-shadow: 0 1px 4px rgba(80,80,80,0.08);
+.share-memory-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: #f5f0eb;
+  color: #8a7d72;
+  border: 1px solid #ede9e3;
+  font-size: 0.95rem;
   cursor: pointer;
-  margin-top: 12px;
+  transition: background 0.2s;
 }
-.share-memory-btn:hover {
-  background: #DFA3B2;
+.share-memory-toggle:hover {
+  background: #ede9e3;
+}
+.share-memory-toggle:focus-visible {
+  outline: 2px solid #6b6375;
+  outline-offset: 2px;
+}
+.share-memory-toggle-arrow {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.share-memory-toggle--open .share-memory-toggle-arrow {
+  transform: rotate(180deg);
+}
+.share-memory-body {
+  margin-top: 16px;
+  animation: share-form-in 0.3s ease-out;
+}
+@keyframes share-form-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .candle-section {
