@@ -6,7 +6,8 @@
       "Bash(node --check \"c:/Users/moriy/OneDrive/Desktop/מוריה/yehudith/backend/api/server.js\")",
       "Bash(find /c/Users/moriy/yehudith -name .env* -type f)",
       "Bash(/tmp/trace.txt:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(npx vite:*)"
     ]
   }
 }
