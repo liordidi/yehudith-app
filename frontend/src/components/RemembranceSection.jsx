@@ -21,31 +21,32 @@ export function RemembranceSection({ remembrance }) {
 
   return (
     <section className="remembrance-section" dir="rtl">
-      <div className="remembrance-title">{remembrance.title}</div>
+      <h2>{remembrance.title}</h2>
       <div className="remembrance-actions">
-        <button
-          className={`remembrance-btn${lit ? ' remembrance-btn--lit' : ''}`}
-          onClick={handleLight}
-          disabled={lit || loading}
-        >
-          {lit ? 'הנר הודלק 🕯️' : remembrance.candleLabel}
-        </button>
-        <a
-          className="remembrance-btn"
-          href={remembrance.tehillimHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={remembrance.tehillimLabel}
-        >
-          {remembrance.tehillimLabel}
-        </a>
-      </div>
-      <div className="remembrance-count">
-        {loading ? '...' : count} {remembrance.countLabel}
+        <div className="remembrance-action">
+          <button
+            className={`remembrance-btn${lit ? ' remembrance-btn--lit' : ''}`}
+            onClick={handleLight}
+            disabled={lit || loading}
+          >
+            {lit ? 'הנר הודלק 🕯️' : remembrance.candleLabel}
+          </button>
+        </div>
+        <div className="remembrance-action">
+          <a
+            className="remembrance-btn"
+            href={remembrance.tehillimHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={remembrance.tehillimLabel}
+          >
+            {remembrance.tehillimLabel}
+          </a>
+        </div>
       </div>
       {toast && (
         <div className="remembrance-toast" role="status">
-          תודה שהדלקת נר לזכרה 💜
+          תודה שהדלקת נר לזכרה 💜 · {count} {remembrance.countLabel}
         </div>
       )}
     </section>
