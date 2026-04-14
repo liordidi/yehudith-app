@@ -4,6 +4,7 @@
   flex-direction: column;
   gap: 8px;
   background: none;
+  font-family: inherit;
 }
 .memory-form label {
   font-size: 1rem;
@@ -17,6 +18,7 @@
   border: 1px solid #e6e2d8;
   padding: 8px;
   font-size: 1rem;
+  font-family: inherit;
   background: #fffaf6;
   color: #5a5a5a;
 }
@@ -32,6 +34,7 @@
   padding: 10px 24px;
   cursor: pointer;
   font-size: 1rem;
+  font-family: inherit;
 }
 .memory-submit-btn:disabled {
   background: #e6e2d8;
@@ -83,6 +86,7 @@
   border: none;
   padding: 10px 32px;
   font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
   transition: background 0.18s;
 }
@@ -125,6 +129,7 @@
   border: none;
   padding: 6px 18px;
   font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
   margin-top: 6px;
 }
@@ -138,6 +143,7 @@
   background: #f3ede6;
   color: #6b6375;
   font-size: 0.95rem;
+  font-family: inherit;
   cursor: pointer;
   border: 1px dashed #d6cfc4;
   transition: background 0.18s;
@@ -1069,26 +1075,31 @@ a.hero-cta-btn {
 }
 
 .share-memory-section {
-  padding: 24px 16px;
-  text-align: center;
+  padding: 28px 16px 16px;
 }
 .share-memory-toggle {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
-  padding: 14px 20px;
-  border-radius: 14px;
-  background: #f5f0eb;
-  color: #8a7d72;
-  border: 1px solid #ede9e3;
-  font-size: 0.95rem;
+  padding: 0;
+  background: none;
+  color: #7a6e5a;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: color 0.2s;
 }
 .share-memory-toggle:hover {
-  background: #ede9e3;
+  color: #4a4036;
+}
+.share-memory-toggle:hover span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(74, 64, 54, 0.3);
 }
 .share-memory-toggle:focus-visible {
   outline: 2px solid #6b6375;
@@ -1097,6 +1108,7 @@ a.hero-cta-btn {
 .share-memory-toggle-arrow {
   transition: transform 0.3s ease;
   flex-shrink: 0;
+  opacity: 0.55;
 }
 .share-memory-toggle--open .share-memory-toggle-arrow {
   transform: rotate(180deg);

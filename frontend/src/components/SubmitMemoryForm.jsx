@@ -76,7 +76,7 @@ export function SubmitMemoryForm({ open: openProp, onOpenChange }) {
           aria-expanded={open}
         >
           <span>רוצים לשתף זיכרון נוסף?</span>
-          <svg className="share-memory-toggle-arrow" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <svg className="share-memory-toggle-arrow" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
