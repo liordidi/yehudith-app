@@ -74,6 +74,6 @@ export const memorialData = {
     countLabel: "נרות דולקים",
   },
   footer: {
-    text: "לזכרה של יהודית אליהו ז״ל"
+    text: "תישאר בליבנו תמיד"
   }
 };
