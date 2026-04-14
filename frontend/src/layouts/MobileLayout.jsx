@@ -11,6 +11,7 @@ import { MemoriesSection } from '../components/MemoriesSection';
 import { SongsSection } from '../components/SongsSection';
 import { SubmitMemoryForm } from '../components/SubmitMemoryForm';
 import { RemembranceSection } from '../components/RemembranceSection';
+import { BackToTop } from '../components/BackToTop';
 import { Footer } from '../components/Footer';
 
 export function MobileLayout({
@@ -48,6 +49,7 @@ export function MobileLayout({
         <RemembranceSection remembrance={memorialData.remembrance} />
       </div>
       <Footer footer={memorialData.footer} />
+      <BackToTop />
     </div>
   );
 }
