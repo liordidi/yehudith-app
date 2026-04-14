@@ -67,13 +67,16 @@ export const memorialData = {
     ],
   },
   remembrance: {
-    title: "לעילוי נשמת יהודית בת שמחה ז\"ל",
+    title: "לעילוי נשמתה",
     candleLabel: "הדליקו נר",
     tehillimLabel: "קראו תהילים",
     tehillimHref: "https://new.tehilimyahad.com/mr.jsp?r=xaoZ1m5gmit",
     countLabel: "נרות דולקים",
   },
   footer: {
-    text: "תישאר בליבנו תמיד"
+    lines: [
+      "לזכר יהודית בת שמחה ז\"ל",
+      "תישאר בליבנו תמיד",
+    ],
   }
 };
