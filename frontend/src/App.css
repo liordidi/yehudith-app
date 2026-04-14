@@ -1198,7 +1198,12 @@ a.hero-cta-btn {
 .remembrance-actions {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 24px;
+}
+.remembrance-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .remembrance-btn {
   font-size: 0.95rem;
