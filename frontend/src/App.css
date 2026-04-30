@@ -4,6 +4,7 @@
   flex-direction: column;
   gap: 8px;
   background: none;
+  font-family: inherit;
 }
 .memory-form label {
   font-size: 1rem;
@@ -17,6 +18,7 @@
   border: 1px solid #e6e2d8;
   padding: 8px;
   font-size: 1rem;
+  font-family: inherit;
   background: #fffaf6;
   color: #5a5a5a;
 }
@@ -32,6 +34,7 @@
   padding: 10px 24px;
   cursor: pointer;
   font-size: 1rem;
+  font-family: inherit;
 }
 .memory-submit-btn:disabled {
   background: #e6e2d8;
@@ -83,6 +86,7 @@
   border: none;
   padding: 10px 32px;
   font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
   transition: background 0.18s;
 }
@@ -125,6 +129,7 @@
   border: none;
   padding: 6px 18px;
   font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
   margin-top: 6px;
 }
@@ -138,6 +143,7 @@
   background: #f3ede6;
   color: #6b6375;
   font-size: 0.95rem;
+  font-family: inherit;
   cursor: pointer;
   border: 1px dashed #d6cfc4;
   transition: background 0.18s;
@@ -506,6 +512,9 @@ body {
 .hero-cta-btn:hover {
   background: #e6e2d8;
 }
+a.hero-cta-btn {
+  text-decoration: none;
+}
 
 /* Gallery Section */
 .gallery-section {
@@ -514,7 +523,8 @@ body {
 .gallery-section h2,
 .memories-section h2,
 .songs-section h2,
-.messages-section h2 {
+.messages-section h2,
+.remembrance-section h2 {
   text-align: center;
   color: #4a4036;
   font-weight: 600;
@@ -1066,22 +1076,51 @@ body {
 }
 
 .share-memory-section {
-  padding: 24px 16px;
-  text-align: center;
+  padding: 28px 16px 16px;
 }
-.share-memory-btn {
-  font-size: 1rem;
-  padding: 10px 24px;
-  border-radius: 24px;
-  background: #E8B7C3;
-  color: #5c2d3e;
+.share-memory-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  background: none;
+  color: #7a6e5a;
   border: none;
-  box-shadow: 0 1px 4px rgba(80,80,80,0.08);
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
-  margin-top: 12px;
+  transition: color 0.2s;
 }
-.share-memory-btn:hover {
-  background: #DFA3B2;
+.share-memory-toggle:hover {
+  color: #4a4036;
+}
+.share-memory-toggle:hover span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(74, 64, 54, 0.3);
+}
+.share-memory-toggle:focus-visible {
+  outline: 2px solid #6b6375;
+  outline-offset: 2px;
+}
+.share-memory-toggle-arrow {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+.share-memory-toggle--open .share-memory-toggle-arrow {
+  transform: rotate(180deg);
+}
+.share-memory-body {
+  margin-top: 16px;
+  animation: share-form-in 0.3s ease-out;
+}
+@keyframes share-form-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .candle-section {
@@ -1147,11 +1186,111 @@ body {
   to   { opacity: 0; }
 }
 
+/* Remembrance Section */
+.remembrance-section {
+  padding: 32px 16px 24px;
+  text-align: center;
+}
+.remembrance-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+.remembrance-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.remembrance-btn {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 9px 22px;
+  border-radius: 24px;
+  background: #f3ede6;
+  color: #6b6375;
+  border: none;
+  text-decoration: none;
+  box-shadow: 0 1px 4px rgba(80,80,80,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.remembrance-btn:hover {
+  background: #e6e2d8;
+}
+.remembrance-icon {
+  margin-top: 10px;
+  color: #bfae9e;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.remembrance-action:hover .remembrance-icon {
+  opacity: 0.85;
+}
+.remembrance-btn--lit {
+  background: #fdf3e3;
+  color: #a0744a;
+  cursor: default;
+  animation: candle-light 0.5s ease-out forwards;
+  box-shadow: 0 0 0 3px rgba(224, 166, 80, 0.22),
+              0 2px 12px rgba(200, 130, 50, 0.18);
+}
+.remembrance-toast {
+  margin-top: 12px;
+  display: inline-block;
+  background: #fdf3e3;
+  color: #a0744a;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 6px rgba(200,130,50,0.12);
+  animation: toast-in 0.3s ease-out, toast-out 0.4s ease-in 3.1s forwards;
+}
+
+/* Back to Top */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f3ede6;
+  color: #6b6375;
+  border: none;
+  box-shadow: 0 2px 8px rgba(80,80,80,0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, background 0.2s;
+  z-index: 900;
+}
+.back-to-top--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  background: #e6e2d8;
+}
+.back-to-top:focus-visible {
+  outline: 2px solid #6b6375;
+  outline-offset: 2px;
+}
+
 .footer-section {
   padding: 32px 16px 8px;
   text-align: center;
   color: #bfae9e;
   font-size: 0.88rem;
+}
+.footer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  line-height: 1.55;
+  opacity: 0.88;
 }
 
 .modal-overlay {
@@ -1467,7 +1606,8 @@ main {
 /* ── Section headings: start-aligned on desktop (RTL right = start) ─────── */
 .desktop-page .gallery-section h2,
 .desktop-page .memories-section h2,
-.desktop-page .songs-section h2 {
+.desktop-page .songs-section h2,
+.desktop-page .remembrance-section h2 {
   text-align: right;
   font-size: 1.2rem;
   letter-spacing: 0.01em;
@@ -1479,7 +1619,8 @@ main {
 .desktop-page .memories-section,
 .desktop-page .songs-section,
 .desktop-page .share-memory-section,
-.desktop-page .candle-section {
+.desktop-page .candle-section,
+.desktop-page .remembrance-section {
   padding: 44px clamp(40px, 5.5vw, 72px);
 }
 

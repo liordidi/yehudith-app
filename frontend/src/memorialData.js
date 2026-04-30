@@ -24,6 +24,8 @@ export const memorialData = {
       { label: "צפו בזיכרונות",         action: "scrollTo", scrollTo: "memories-section" },
       { label: "צפו בשירים שהיא אהבה", action: "scrollTo", scrollTo: "songs-section" },
       { label: "שתפו זיכרון",            action: "openShareForm", className: "hero-cta-share" },
+      { label: "הדליקו נר לעילוי נשמתה", action: "scrollTo", scrollTo: "candle-section" },
+      { label: "קראו תהילים לעילוי נשמתה", action: "scrollTo", scrollTo: "candle-section" },
     ],
   },
   gallery: {
@@ -64,11 +66,17 @@ export const memorialData = {
       { id: 2, text: "אישה של אהבה, נדיבות ואור — לעולם בליבנו", author: "" },
     ],
   },
-  candle: {
-    buttonLabel: "הדליקו נר לזכרה",
+  remembrance: {
+    title: "לעילוי נשמתה",
+    candleLabel: "הדליקו נר",
+    tehillimLabel: "קראו תהילים",
+    tehillimHref: "https://new.tehilimyahad.com/mr.jsp?r=xaoZ1m5gmit",
     countLabel: "נרות דולקים",
   },
   footer: {
-    text: "לזכרה של יהודית אליהו ז״ל"
+    lines: [
+      "לזכר יהודית בת שמחה ז\"ל",
+      "תישאר בליבנו תמיד",
+    ],
   }
 };

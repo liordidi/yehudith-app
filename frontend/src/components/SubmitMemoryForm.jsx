@@ -70,85 +70,92 @@ export function SubmitMemoryForm({ open: openProp, onOpenChange }) {
   return (
     <>
       <section className="share-memory-section" ref={sectionRef} dir="rtl">
-        {!open ? (
-          !controlled && (
-            <button className="share-memory-btn" onClick={() => setOpen(true)}>
-              שתפו זיכרון
-            </button>
-          )
-        ) : (
-          <form className="memory-form" onSubmit={handleSubmit}>
-            <label>שם מלא *</label>
-            <input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="השם שיוצג"
-              disabled={submitting}
-            />
+        <button
+          className={`share-memory-toggle${open ? ' share-memory-toggle--open' : ''}`}
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+        >
+          <span>רוצים לשתף זיכרון נוסף?</span>
+          <svg className="share-memory-toggle-arrow" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
 
-            <label>כותרת</label>
-            <input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="כותרת (רשות)"
-              disabled={submitting}
-            />
-
-            <label>זיכרון *</label>
-            <textarea
-              value={text}
-              onChange={e => setText(e.target.value)}
-              rows={5}
-              placeholder="שתפו זיכרון, רגע, סיפור..."
-              disabled={submitting}
-            />
-
-            <label className="memory-file-label">
-              {imageFile ? 'החלף תמונה' : 'הוסף תמונה (רשות)'}
+        {open && (
+          <div className="share-memory-body">
+            <form className="memory-form" onSubmit={handleSubmit}>
+              <label>שם מלא *</label>
               <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                style={{ display: 'none' }}
-                onChange={handleImageChange}
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="השם שיוצג"
                 disabled={submitting}
               />
-            </label>
 
-            {imagePreviewUrl && (
-              <div className="memory-image-preview">
-                <img src={imagePreviewUrl} alt="תצוגה מקדימה" />
+              <label>כותרת</label>
+              <input
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="כותרת (רשות)"
+                disabled={submitting}
+              />
+
+              <label>זיכרון *</label>
+              <textarea
+                value={text}
+                onChange={e => setText(e.target.value)}
+                rows={5}
+                placeholder="שתפו זיכרון, רגע, סיפור..."
+                disabled={submitting}
+              />
+
+              <label className="memory-file-label">
+                {imageFile ? 'החלף תמונה' : 'הוסף תמונה (רשות)'}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  style={{ display: 'none' }}
+                  onChange={handleImageChange}
+                  disabled={submitting}
+                />
+              </label>
+
+              {imagePreviewUrl && (
+                <div className="memory-image-preview">
+                  <img src={imagePreviewUrl} alt="תצוגה מקדימה" />
+                  <button
+                    type="button"
+                    className="memory-image-remove"
+                    onClick={handleRemoveImage}
+                    disabled={submitting}
+                  >
+                    הסר תמונה
+                  </button>
+                </div>
+              )}
+
+              {error && <div className="memory-error">{error}</div>}
+
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <button
-                  type="button"
-                  className="memory-image-remove"
-                  onClick={handleRemoveImage}
+                  type="submit"
+                  className="memory-submit-btn"
                   disabled={submitting}
                 >
-                  הסר תמונה
+                  {submitting ? 'שולח...' : 'שליחה'}
+                </button>
+                <button
+                  type="button"
+                  className="memory-submit-btn"
+                  onClick={() => setOpen(false)}
+                  disabled={submitting}
+                  style={{ background: '#f0ece6' }}
+                >
+                  ביטול
                 </button>
               </div>
-            )}
-
-            {error && <div className="memory-error">{error}</div>}
-
-            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-              <button
-                type="submit"
-                className="memory-submit-btn"
-                disabled={submitting}
-              >
-                {submitting ? 'שולח...' : 'שליחה'}
-              </button>
-              <button
-                type="button"
-                className="memory-submit-btn"
-                onClick={() => setOpen(false)}
-                disabled={submitting}
-                style={{ background: '#f0ece6' }}
-              >
-                ביטול
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         )}
       </section>
 

@@ -10,7 +10,8 @@ import { GallerySection } from '../components/GallerySection';
 import { MemoriesSection } from '../components/MemoriesSection';
 import { SongsSection } from '../components/SongsSection';
 import { SubmitMemoryForm } from '../components/SubmitMemoryForm';
-import { CandleSection } from '../components/CandleSection';
+import { RemembranceSection } from '../components/RemembranceSection';
+import { BackToTop } from '../components/BackToTop';
 import { Footer } from '../components/Footer';
 
 export function MobileLayout({
@@ -44,8 +45,11 @@ export function MobileLayout({
       <div id="songs-section">
         <SongsSection songs={memorialData.songs} />
       </div>
-      <CandleSection candle={memorialData.candle} />
+      <div id="candle-section">
+        <RemembranceSection remembrance={memorialData.remembrance} />
+      </div>
       <Footer footer={memorialData.footer} />
+      <BackToTop />
     </div>
   );
 }

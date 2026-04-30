@@ -23,15 +23,28 @@ export function HeroSection({ person, hero, onOpenShareForm }) {
       <div className="hero-text">{hero.subtitle}</div>
       <div className="hero-short">{hero.description}</div>
       <div className="hero-cta">
-        {hero.buttons.map((btn, i) => (
-          <button
-            key={i}
-            className={`hero-cta-btn${btn.className ? ` ${btn.className}` : ''}`}
-            onClick={() => handleButton(btn)}
-          >
-            {btn.label}
-          </button>
-        ))}
+        {hero.buttons.map((btn, i) =>
+          btn.action === 'externalLink' ? (
+            <a
+              key={i}
+              className={`hero-cta-btn${btn.className ? ` ${btn.className}` : ''}`}
+              href={btn.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={btn.label}
+            >
+              {btn.label}
+            </a>
+          ) : (
+            <button
+              key={i}
+              className={`hero-cta-btn${btn.className ? ` ${btn.className}` : ''}`}
+              onClick={() => handleButton(btn)}
+            >
+              {btn.label}
+            </button>
+          )
+        )}
       </div>
       </div>
 

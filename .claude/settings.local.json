@@ -6,7 +6,12 @@
       "Bash(node --check \"c:/Users/moriy/OneDrive/Desktop/מוריה/yehudith/backend/api/server.js\")",
       "Bash(find /c/Users/moriy/yehudith -name .env* -type f)",
       "Bash(/tmp/trace.txt:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(npx vite:*)",
+      "WebFetch(domain:new.tehilimyahad.com)",
+      "Bash(curl -s -L -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" \"https://new.tehilimyahad.com/mr.jsp?r=xaoZ1m5gmit\"\\\\)",
+      "Bash(curl -s -L -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" \"https://new.tehilimyahad.com/mr.jsp?r=xaoZ1m5gmit\")",
+      "Bash(curl:*)"
     ]
   }
 }
