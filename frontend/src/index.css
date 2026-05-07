@@ -50,16 +50,37 @@
   }
 }
 
-body {
+html, body {
   margin: 0;
+  /* Hide the document scrollbar — section navigation is button/keyboard only.
+     Lenis still scrolls the document; only the visual scrollbar is suppressed. */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge legacy */
+  /* Disable text selection app-wide. Click+drag on text would otherwise
+     trigger the browser's drag-selection autoscroll, which bypasses the
+     section router. Form fields are re-enabled below. */
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* Stop pull-to-refresh / browser-level scroll chaining at the document. */
+  overscroll-behavior: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;               /* WebKit */
+}
+
+/* Re-enable selection inside form controls so users can edit comments etc. */
+input, textarea, select, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;

@@ -21,11 +21,10 @@ export const memorialData = {
     subtitle: "לזכרה באהבה",
     description: "אישה של אהבה גדולה, נתינה ענקית, וחיוך תמידי.",
     buttons: [
-      { label: "צפו בזיכרונות",         action: "scrollTo", scrollTo: "memories-section" },
-      { label: "צפו בשירים שהיא אהבה", action: "scrollTo", scrollTo: "songs-section" },
-      { label: "שתפו זיכרון",            action: "openShareForm", className: "hero-cta-share" },
-      { label: "הדליקו נר לעילוי נשמתה", action: "scrollTo", scrollTo: "candle-section" },
-      { label: "קראו תהילים לעילוי נשמתה", action: "scrollTo", scrollTo: "candle-section" },
+      { label: "גלרייה",               action: "scrollTo", scrollTo: "gallery"     },
+      { label: "צפו בזיכרונות",        action: "scrollTo", scrollTo: "memories"    },
+      { label: "שירים שהיא אהבה",     action: "scrollTo", scrollTo: "songs"       },
+      { label: "לעילוי נשמתה",        action: "scrollTo", scrollTo: "remembrance" },
     ],
   },
   gallery: {

@@ -1,0 +1,100 @@
+/* SectionShell — one section per viewport, with optional in-flow nav bar.
+   Per-section visual design lives in each section's own CSS; this file only
+   sets up the geometry and the navigation strip. */
+
+.section-shell {
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;          /* mobile address-bar friendly */
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Escape #root's centered max-width so each section spans the full viewport. */
+  margin-inline: calc(50% - 50vw);
+  box-sizing: border-box;
+}
+
+.section-shell-inner {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;           /* allow children to shrink within the flex column */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Per-section navigation strip (sections 2–5). Lives in normal flow at the
+   bottom of the section, not floating, per spec. */
+.section-nav {
+
+}
+
+.section-nav-btn {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 9px 18px;
+  border: 1px solid var(--border, #e5e4e7);
+  background: #fff;
+  color: var(--text-h, #08060d);
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.1s ease, opacity 0.18s ease;
+}
+
+.section-nav-btn:hover:not(:disabled) {
+  background: #f4f3ec;
+}
+
+.section-nav-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.section-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.section-nav-btn--home {
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .section-nav {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .section-nav-btn {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+}
+
+/* ── Section 5 (remembrance) layout ───────────────────────────────────────
+   The candle/tehillim content is small; without help it sits at the top of
+   the 100vh section with empty space below. Center the candle content and
+   pin the footer text to the bottom of the section, just above the nav. */
+.section-shell[data-section-id="remembrance"] .section-shell-inner {
+  justify-content: space-between;
+}
+
+.section-shell[data-section-id="remembrance"] #candle-section {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.section-shell[data-section-id="remembrance"] .remembrance-section {
+  width: 100%;
+}
+
+.section-shell[data-section-id="remembrance"] .footer-section {
+  flex: 0 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  border-top: 1px solid #ede9e3;
+  padding-block: 22px;
+  margin-top: 0;
+}

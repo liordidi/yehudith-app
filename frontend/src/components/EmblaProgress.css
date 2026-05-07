@@ -1,0 +1,26 @@
+/* EmblaProgress.css
+   Thin RTL-aware progress bar driven by emblaApi.scrollProgress(). */
+
+.embla-progress {
+  position: relative;
+  height: 1.5px;
+  width: 200px;
+  max-width: 100%;
+  background: rgba(0, 0, 0, 0.10);
+  border-radius: 999px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.embla-progress-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;       /* RTL: pinned to right; LTR: pinned to left */
+  height: 100%;
+  background: #2a2530;
+  border-radius: 999px;
+  width: 0;
+  transition: width 0.05s linear;
+  will-change: width;
+}

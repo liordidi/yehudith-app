@@ -1,9 +1,13 @@
 import React from 'react';
+import { useSectionRouter } from '../sectionRouter';
 
 export function HeroSection({ person, hero, onOpenShareForm }) {
+  const { goToSection } = useSectionRouter();
   const handleButton = (btn) => {
     if (btn.action === 'scrollTo') {
-      document.getElementById(btn.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+      // Router accepts both new section names and the legacy DOM ids
+      // (memories-section, songs-section, candle-section).
+      goToSection(btn.scrollTo);
     } else if (btn.action === 'openShareForm') {
       onOpenShareForm?.();
     }

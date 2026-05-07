@@ -1,18 +1,17 @@
 // MobileLayout.jsx
-// Verbatim extraction of the current App.jsx page layout.
-// This is the source of truth for the mobile experience.
-// Do not change this file when working on desktop improvements.
+// Section-per-viewport layout. Each section is wrapped in <SectionShell> so it
+// occupies one full screen and gets the per-section nav bar (sections 2–5).
+// Footer is folded into the last section so the page ends exactly at section 5.
 
 import React from 'react';
 import { memorialData } from '../memorialData';
 import { HeroSection } from '../components/HeroSection';
 import { GallerySection } from '../components/GallerySection';
-import { MemoriesSection } from '../components/MemoriesSection';
+import { MemoriesCarousel } from '../components/MemoriesCarousel';
 import { SongsSection } from '../components/SongsSection';
-import { SubmitMemoryForm } from '../components/SubmitMemoryForm';
 import { RemembranceSection } from '../components/RemembranceSection';
-import { BackToTop } from '../components/BackToTop';
 import { Footer } from '../components/Footer';
+import { SectionShell } from '../components/SectionShell';
 
 export function MobileLayout({
   shareFormOpen,
@@ -25,31 +24,43 @@ export function MobileLayout({
 }) {
   return (
     <div className="memorial-page" dir="rtl">
-      <HeroSection
-        person={memorialData.person}
-        hero={memorialData.hero}
-        onOpenShareForm={onOpenShareForm}
-      />
-      <GallerySection
-        gallery={memorialData.gallery}
-        showAdmin={showAdmin}
-        adminKey={adminKey}
-      />
-      <div id="memories-section">
-        <MemoriesSection
-          memories={{ title: memorialData.memories.title, items: serverMemories }}
-          fetchError={memoriesFetchError}
+      <SectionShell sectionId="hero">
+        <HeroSection
+          person={memorialData.person}
+          hero={memorialData.hero}
+          onOpenShareForm={onOpenShareForm}
         />
-        <SubmitMemoryForm open={shareFormOpen} onOpenChange={onShareFormChange} />
-      </div>
-      <div id="songs-section">
-        <SongsSection songs={memorialData.songs} />
-      </div>
-      <div id="candle-section">
-        <RemembranceSection remembrance={memorialData.remembrance} />
-      </div>
-      <Footer footer={memorialData.footer} />
-      <BackToTop />
+      </SectionShell>
+
+      <SectionShell sectionId="gallery" showNav={false}>
+        <GallerySection
+          gallery={memorialData.gallery}
+          showAdmin={showAdmin}
+          adminKey={adminKey}
+        />
+      </SectionShell>
+
+      <SectionShell sectionId="memories" showNav={false}>
+        <div className="memories-section-immersive">
+          <MemoriesCarousel
+            memories={serverMemories}
+            fetchError={memoriesFetchError}
+          />
+        </div>
+      </SectionShell>
+
+      <SectionShell sectionId="songs">
+        <div id="songs-section">
+          <SongsSection songs={memorialData.songs} />
+        </div>
+      </SectionShell>
+
+      <SectionShell sectionId="remembrance">
+        <div id="candle-section">
+          <RemembranceSection remembrance={memorialData.remembrance} />
+        </div>
+        <Footer footer={memorialData.footer} />
+      </SectionShell>
     </div>
   );
 }

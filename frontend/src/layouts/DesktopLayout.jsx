@@ -1,18 +1,16 @@
 // DesktopLayout.jsx
-// Desktop-specific page layout. Safe to evolve independently of MobileLayout.
-// All section components are shared — do not duplicate their internal logic here.
-// Start conservatively: same structure as mobile, desktop CSS handles visual differences.
+// Section-per-viewport layout. Mirrors MobileLayout's structure; desktop CSS
+// handles visual differences inside each section.
 
 import React from 'react';
 import { memorialData } from '../memorialData';
 import { HeroSection } from '../components/HeroSection';
 import { GallerySection } from '../components/GallerySection';
-import { MemoriesSection } from '../components/MemoriesSection';
+import { MemoriesCarousel } from '../components/MemoriesCarousel';
 import { SongsSection } from '../components/SongsSection';
-import { SubmitMemoryForm } from '../components/SubmitMemoryForm';
 import { RemembranceSection } from '../components/RemembranceSection';
-import { BackToTop } from '../components/BackToTop';
 import { Footer } from '../components/Footer';
+import { SectionShell } from '../components/SectionShell';
 
 export function DesktopLayout({
   shareFormOpen,
@@ -25,31 +23,43 @@ export function DesktopLayout({
 }) {
   return (
     <div className="memorial-page desktop-page" dir="rtl">
-      <HeroSection
-        person={memorialData.person}
-        hero={memorialData.hero}
-        onOpenShareForm={onOpenShareForm}
-      />
-      <GallerySection
-        gallery={memorialData.gallery}
-        showAdmin={showAdmin}
-        adminKey={adminKey}
-      />
-      <div id="memories-section">
-        <MemoriesSection
-          memories={{ title: memorialData.memories.title, items: serverMemories }}
-          fetchError={memoriesFetchError}
+      <SectionShell sectionId="hero">
+        <HeroSection
+          person={memorialData.person}
+          hero={memorialData.hero}
+          onOpenShareForm={onOpenShareForm}
         />
-        <SubmitMemoryForm open={shareFormOpen} onOpenChange={onShareFormChange} />
-      </div>
-      <div id="songs-section">
-        <SongsSection songs={memorialData.songs} />
-      </div>
-      <div id="candle-section">
-        <RemembranceSection remembrance={memorialData.remembrance} />
-      </div>
-      <Footer footer={memorialData.footer} />
-      <BackToTop />
+      </SectionShell>
+
+      <SectionShell sectionId="gallery" showNav={false}>
+        <GallerySection
+          gallery={memorialData.gallery}
+          showAdmin={showAdmin}
+          adminKey={adminKey}
+        />
+      </SectionShell>
+
+      <SectionShell sectionId="memories" showNav={false}>
+        <div className="memories-section-immersive">
+          <MemoriesCarousel
+            memories={serverMemories}
+            fetchError={memoriesFetchError}
+          />
+        </div>
+      </SectionShell>
+
+      <SectionShell sectionId="songs">
+        <div id="songs-section">
+          <SongsSection songs={memorialData.songs} />
+        </div>
+      </SectionShell>
+
+      <SectionShell sectionId="remembrance">
+        <div id="candle-section">
+          <RemembranceSection remembrance={memorialData.remembrance} />
+        </div>
+        <Footer footer={memorialData.footer} />
+      </SectionShell>
     </div>
   );
 }

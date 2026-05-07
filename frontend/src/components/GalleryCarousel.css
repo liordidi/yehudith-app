@@ -1,0 +1,524 @@
+/* GalleryCarousel.css
+   Side-by-side image+comments carousel for section 2, styled like the Webflow
+   "Intermediate Slider Workout" example: peeking adjacent slides, dimmed
+   inactive slides, arrows + dots at the bottom-left, generous whitespace. */
+
+/* Wrapper inside SectionShell — fills the available flex slot above the
+   per-section nav buttons. */
+.gallery-section-immersive {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+}
+
+.gc-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 32px 0 24px;
+  box-sizing: border-box;
+}
+
+/* ── View container: holds carousel + grid stacked, one visible at a time ─ */
+.gc-views {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.gc-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.985);
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.gc-view.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s linear 0s;
+}
+
+/* Embla viewport + container — viewport has overflow:hidden, container is the
+   flex strip of slides. Slides are < 100% wide so neighbors peek at the edges. */
+.gc-viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ── Grid view ───────────────────────────────────────────────────────── */
+
+/* Wrapper that Lenis attaches to — has overflow:hidden so native scroll
+   doesn't fight Lenis's transform-based smooth scroll. */
+.gc-grid-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* Stop wheel chaining at this boundary even if Lenis lets an event slip. */
+  overscroll-behavior: contain;
+}
+
+.gc-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);   /* 4 tall tiles per row, like the reference */
+  grid-auto-rows: max-content;             /* row = item's intrinsic height (aspect-ratio) */
+  align-content: start;                    /* don't stretch rows to fill grid height */
+  align-items: start;                      /* don't stretch items inside their row */
+  gap: 14px;
+  padding: 8px clamp(12px, 3vw, 32px);
+  box-sizing: border-box;
+}
+
+.gc-grid-item {
+  position: relative;
+  display: block;             /* defeat <button>'s default inline-block sizing */
+  width: 100%;
+  aspect-ratio: 3 / 4;        /* tall portrait tile, matches the reference */
+  overflow: hidden;
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+  background: #f0ece5;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gc-grid-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.gc-grid-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.gc-grid-play {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  padding-inline-start: 2px;  /* nudge play triangle visually centered */
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .gc-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .gc-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ── View-mode toggle buttons (carousel / grid) ─────────────────────── */
+.gc-view-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.gc-view-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd6cc;
+  border-radius: 8px;
+  background: #fff;
+  color: #6b6375;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.1s ease;
+}
+
+.gc-view-btn:hover:not(.is-active) { background: #f4f3ec; }
+.gc-view-btn:active                { transform: scale(0.95); }
+
+.gc-view-btn.is-active {
+  background: #2a2530;
+  color: #fff;
+  border-color: #2a2530;
+}
+
+.gc-container {
+  display: flex;
+  height: 100%;
+  align-items: stretch;
+}
+
+.gc-slide {
+  flex: 0 0 38%;            /* single block per slide; peek ~22% on each side */
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  transform: scale(0.97);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.gc-slide.is-selected {
+
+}
+
+/* ── Card: holds image and comments stacked; one is visible at a time ──── */
+.gc-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.gc-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Front face (image / video) — always visible, sits underneath ────── */
+.gc-face--front {
+  background: transparent;
+  align-items: stretch;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* ── Back face (comments) — slides in from LEFT, slides out to RIGHT ─── */
+.gc-face--back {
+  z-index: 2;
+  transform: translateX(-100%);  /* default: parked off-screen to the left */
+  visibility: hidden;
+  pointer-events: none;
+  /* Defer hiding until the slide-out animation finishes */
+  transition: visibility 0s linear 0.5s;
+}
+
+.gc-face--back.is-visible {
+  visibility: visible;
+  pointer-events: auto;
+  animation: gcSlideInFromLeft 0.5s ease forwards;
+  transition: visibility 0s linear 0s;
+}
+
+.gc-face--back.is-leaving {
+  visibility: visible;
+  pointer-events: none;          /* don't accept clicks while exiting */
+  animation: gcSlideOutToRight 0.5s ease forwards;
+  transition: visibility 0s linear 0.5s;
+}
+
+@keyframes gcSlideInFromLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes gcSlideOutToRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+.gc-media-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;          /* applies to both <img> and <video> */
+  object-position: top;
+  display: block;
+  /* Parallax: CSS owns the static scale (so the image is wider than its
+     slide and translation never reveals an edge). The JS hook only sets
+     --parallax-x, which combines with this base scale.
+     scale(1.60) is the matching cover for TWEEN_FACTOR = 0.18. 
+  transform: scale(1.60) translate3d(var(--parallax-x, 0%), 0, 0);
+   transform-origin: center center;
+  */
+   will-change: transform;
+}
+
+/* ── Toggle button — pinned to the slide's top-right (RTL "start") ─── */
+.gc-flip-btn {
+  position: absolute;
+  top: 14px;
+  inset-inline-start: 14px;   /* RTL-aware: top-right in RTL, top-left in LTR */
+  z-index: 5;
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  padding: 8px 14px;
+  border: none;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.gc-flip-btn:hover  { background: rgba(0,0,0,0.78); }
+.gc-flip-btn:active { transform: scale(0.96); }
+
+/* When the comments face is showing (sliding in or out), give the button a
+   light style so it reads against the warm-gray comments background. */
+.gc-card:has(.gc-face--back.is-visible) .gc-flip-btn,
+.gc-card:has(.gc-face--back.is-leaving) .gc-flip-btn {
+  background: rgba(255,255,255,0.85);
+  color: #2a2530;
+  border-color: rgba(0,0,0,0.15);
+}
+.gc-card:has(.gc-face--back.is-visible) .gc-flip-btn:hover,
+.gc-card:has(.gc-face--back.is-leaving) .gc-flip-btn:hover {
+  background: #fff;
+}
+
+/* ── Comments face: gray block, large title, scrollable list, form ───── */
+.gc-comments {
+  display: flex;
+  flex-direction: column;
+  background: #e9e6e1;       /* warm gray, matches the Webflow example */
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 56px 32px 24px;   /* extra top room for the flip button */
+  box-sizing: border-box;
+}
+
+.gc-comments-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex: 0 0 auto;
+}
+
+.gc-comments-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #2a2530;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.gc-comments-count {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.85rem;
+  color: #8e8579;
+  background: rgba(255,255,255,0.5);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.gc-comments-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-inline-end: 6px;     /* RTL-aware right padding for scrollbar gap */
+  margin-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #c8c2b6 transparent;
+  overscroll-behavior: contain;  /* keep wheel events inside the comments list */
+}
+
+.gc-comments-list::-webkit-scrollbar       { display: block; width: 6px; }
+.gc-comments-list::-webkit-scrollbar-thumb { background: #c8c2b6; border-radius: 3px; }
+.gc-comments-list::-webkit-scrollbar-track { background: transparent; }
+
+.gc-comments-status,
+.gc-comments-empty {
+  color: #8e8579;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 24px 0;
+  font-style: italic;
+}
+
+.gc-comment {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.gc-comment:last-child { border-bottom: none; }
+
+.gc-comment-name {
+  font-weight: 600;
+  color: #2a2530;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.gc-comment-text {
+  color: #5a5560;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Submission form (below the list) ────────────────────────────────── */
+.gc-comment-form {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.gc-input,
+.gc-textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.7);
+  color: #1f1d24;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.gc-textarea {
+  resize: vertical;
+  min-height: 56px;
+  max-height: 120px;
+  line-height: 1.45;
+}
+
+.gc-input:focus,
+.gc-textarea:focus {
+  outline: none;
+  border-color: #2a2530;
+  background: #fff;
+}
+
+.gc-form-error { color: #c44; font-size: 0.85rem; }
+.gc-form-ok    { color: #2a7; font-size: 0.85rem; }
+
+.gc-submit {
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  padding: 10px 22px;
+  border-radius: 4px;
+  border: none;
+  background: #2a2530;
+  color: #fff;
+  cursor: pointer;
+  align-self: flex-start;       /* RTL "start" = right edge */
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.gc-submit:hover:not(:disabled) { background: #08060d; }
+.gc-submit:disabled             { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Bottom controls: arrows on the left, dots beside ─────────────────── */
+.gc-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px clamp(16px, 4vw, 48px) 4px;
+}
+
+.gc-controls-holder{
+    display: flex;
+    align-items: center;
+}
+
+/* Pager: prev arrow · "n / total" counter · next arrow (replaces the old
+   separate gc-arrows + gc-dots blocks). */
+.gc-pager {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 168px;
+}
+
+.gc-counter {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.95rem;
+  color: #2a2530;
+  min-width: 56px;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.gc-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.gc-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #2a2530;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+.gc-arrow:hover:not(:disabled)  { background: rgba(0,0,0,0.05); }
+.gc-arrow:active:not(:disabled) { transform: scale(0.92); }
+.gc-arrow:disabled              { opacity: 0.25; cursor: not-allowed; }
+
+.gc-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #c8c2b6;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.gc-dot.is-active {
+  background: #2a2530;
+  transform: scale(1.4);
+}
+
+/* ── Responsive: bigger slide on narrow screens ───────────────────────── */
+@media (max-width: 900px) {
+  .gc-slide { flex-basis: 100%; padding: 0px; }
+  .gc-comments {
+    padding: 52px 18px 14px;
+  }
+  .gc-comments-title { font-size: 1.4rem; }
+  .gc-controls { padding: 12px 16px 4px; gap: 14px; }
+  .gc-flip-btn { font-size: 0.78rem; padding: 7px 11px; }
+}

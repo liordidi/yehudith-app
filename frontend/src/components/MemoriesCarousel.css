@@ -1,0 +1,557 @@
+/* MemoriesCarousel.css
+   Section 3 (זיכרונות). Same visual treatment as the gallery carousel —
+   image (front) + text (back, slides in from left). No grid view, no
+   per-slide form. */
+
+/* Wrapper inside SectionShell — fills the available flex slot. */
+.memories-section-immersive {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+}
+
+.mc-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 32px 0 24px;
+  box-sizing: border-box;
+}
+
+.mc-root--empty {
+  align-items: center;
+}
+
+.mc-empty-state {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  color: #8e8579;
+  font-style: italic;
+  padding: 40px 20px;
+  text-align: center;
+  width: 100%;
+}
+
+/* ── View container ──────────────────────────────────────────────────── */
+.mc-views {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.mc-view.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.45s ease, visibility 0s linear 0s;
+}
+
+/* ── Embla viewport / container / slide ────────────────────────────── */
+.mc-viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.mc-container {
+  display: flex;
+  height: 100%;
+  align-items: stretch;
+}
+
+.mc-slide {
+  flex: 0 0 38%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  transform: scale(0.97);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.mc-slide.is-selected {
+
+}
+
+/* ── Card + faces ──────────────────────────────────────────────────── */
+.mc-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.mc-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Front face: image (or text-only fallback) */
+.mc-face--front {
+  background: transparent;
+  align-items: stretch;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Back face: text — slides in from LEFT, slides out to RIGHT */
+.mc-face--back {
+  z-index: 2;
+  transform: translateX(-100%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.5s;
+}
+
+.mc-face--back.is-visible {
+  visibility: visible;
+  pointer-events: auto;
+  animation: mcSlideInFromLeft 0.5s ease forwards;
+  transition: visibility 0s linear 0s;
+}
+
+.mc-face--back.is-leaving {
+  visibility: visible;
+  pointer-events: none;
+  animation: mcSlideOutToRight 0.5s ease forwards;
+  transition: visibility 0s linear 0.5s;
+}
+
+@keyframes mcSlideInFromLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes mcSlideOutToRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+/* ── Media on the front face ────────────────────────────────────────── */
+.mc-media-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  /* Parallax base scale — matches TWEEN_FACTOR = 0.18 in useEmblaParallax. 
+  transform: scale(1.60) translate3d(var(--parallax-x, 0%), 0, 0);
+  transform-origin: center center;
+  */
+  will-change: transform;
+}
+
+/* No-image fallback: a soft warm gradient with the contributor's name */
+.mc-no-image {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #d8c8b6 0%, #b6a48a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  /* Parallax base scale — matches TWEEN_FACTOR = 0.18 in useEmblaParallax. */
+  transform: scale(1.60) translate3d(var(--parallax-x, 0%), 0, 0);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.mc-no-image-name {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+/* ── Back-face text content (scrolls if long) ───────────────────────── */
+.mc-text-content {
+  width: 100%;
+  height: 100%;
+  background: #e9e6e1;
+  padding: 56px 32px 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c8c2b6 transparent;
+  overscroll-behavior: contain;
+}
+
+.mc-text-content::-webkit-scrollbar       { width: 6px; }
+.mc-text-content::-webkit-scrollbar-thumb { background: #c8c2b6; border-radius: 3px; }
+.mc-text-content::-webkit-scrollbar-track { background: transparent; }
+
+.mc-text-name {
+  font-weight: 600;
+  color: #2a2530;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.mc-text-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1f1d24;
+  margin: 0 0 12px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.mc-text-body {
+  color: #5a5560;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+/* ── Toggle button — pinned to the slide's top edge ─────────────────── */
+.mc-flip-btn {
+  position: absolute;
+  top: 14px;
+  inset-inline-start: 14px;
+  z-index: 5;
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.mc-flip-btn:hover  { background: rgba(0,0,0,0.78); }
+.mc-flip-btn:active { transform: scale(0.96); }
+
+/* When the text face is showing (sliding in or out), give the button a
+   light style so it reads against the warm-gray text background. */
+.mc-card:has(.mc-face--back.is-visible) .mc-flip-btn,
+.mc-card:has(.mc-face--back.is-leaving) .mc-flip-btn {
+  background: rgba(255,255,255,0.85);
+  color: #2a2530;
+  border-color: rgba(0,0,0,0.15);
+}
+.mc-card:has(.mc-face--back.is-visible) .mc-flip-btn:hover,
+.mc-card:has(.mc-face--back.is-leaving) .mc-flip-btn:hover {
+  background: #fff;
+}
+
+/* ── Bottom controls bar (arrows + dots + section nav) ─────────────── */
+.mc-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px clamp(16px, 4vw, 48px) 4px;
+}
+
+.mc-controls-holder {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* "Share a memory" button — opens the SubmitMemoryForm modal */
+.section-newmenory-holder {
+  display: flex;
+  align-items: center;
+}
+
+.mc-share-btn {
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid #2a2530;
+  background: #2a2530;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s ease, transform 0.1s ease;
+}
+
+.mc-share-btn:hover  { background: #08060d; }
+.mc-share-btn:active { transform: scale(0.96); }
+
+/* ── Share-memory modal overlay (fixed, on top of everything) ────────── */
+.mc-share-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: mcModalFadeIn 0.2s ease;
+}
+
+@keyframes mcModalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.mc-share-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 24px 24px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #c8c2b6 transparent;
+  overscroll-behavior: contain;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  animation: mcModalSlideIn 0.25s ease;
+}
+
+@keyframes mcModalSlideIn {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.mc-share-modal::-webkit-scrollbar       { width: 8px; }
+.mc-share-modal::-webkit-scrollbar-thumb { background: #c8c2b6; border-radius: 4px; }
+.mc-share-modal::-webkit-scrollbar-track { background: transparent; }
+
+.mc-share-modal-close {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;        /* RTL: top-left, LTR: top-right */
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  font-size: 1.3rem;
+  color: #6b6375;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.18s ease, color 0.18s ease;
+  z-index: 1;
+}
+
+.mc-share-modal-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #08060d;
+}
+
+/* Pager: prev arrow · "n / total" counter · next arrow (replaces the old
+   separate mc-arrows + mc-dots blocks). */
+.mc-pager {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 168px;
+}
+
+.mc-counter {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.95rem;
+  color: #2a2530;
+  min-width: 56px;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.mc-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.mc-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #2a2530;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+.mc-arrow:hover:not(:disabled)  { background: rgba(0,0,0,0.05); }
+.mc-arrow:active:not(:disabled) { transform: scale(0.92); }
+.mc-arrow:disabled              { opacity: 0.25; cursor: not-allowed; }
+
+.mc-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #c8c2b6;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.mc-dot.is-active {
+  background: #2a2530;
+  transform: scale(1.4);
+}
+
+/* ── Grid view ──────────────────────────────────────────────────────── */
+
+/* Wrapper Lenis attaches to — overflow:hidden so native scroll doesn't
+   fight Lenis's transform-based smooth scroll. */
+.mc-grid-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+}
+
+.mc-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);   /* 4 tall tiles per row */
+  grid-auto-rows: max-content;             /* row = item's intrinsic height */
+  align-content: start;
+  align-items: start;
+  gap: 14px;
+  padding: 8px clamp(12px, 3vw, 32px);
+  box-sizing: border-box;
+}
+
+.mc-grid-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;        /* same tall portrait as the gallery grid */
+  overflow: hidden;
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+  background: #f0ece5;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mc-grid-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.mc-grid-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+/* Fallback tile for memories without an image — same warm gradient as the
+   no-image card, so the grid stays uniform. */
+.mc-grid-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #d8c8b6 0%, #b6a48a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.mc-grid-fallback-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+
+
+@media (max-width: 1200px) {
+  
+   .mc-slide { flex-basis: 50%; padding: 0px; }
+
+}
+
+@media (max-width: 900px) {
+  .mc-slide { flex-basis: 100%; padding: 0px; }
+}
+
+@media (max-width: 700px) {
+  .mc-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ── View-mode toggle buttons (carousel / grid) ─────────────────────── */
+.mc-view-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.mc-view-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd6cc;
+  border-radius: 8px;
+  background: #fff;
+  color: #6b6375;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.1s ease;
+}
+
+.mc-view-btn:hover:not(.is-active) { background: #f4f3ec; }
+.mc-view-btn:active                { transform: scale(0.95); }
+
+.mc-view-btn.is-active {
+  background: #2a2530;
+  color: #fff;
+  border-color: #2a2530;
+}
